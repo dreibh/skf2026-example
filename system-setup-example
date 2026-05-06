@@ -1,0 +1,69 @@
+#!/bin/sh -eu
+#
+# Template VM Image Builder
+# Copyright (C) 2017-2026 by Thomas Dreibholz
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Contact: thomas.dreibholz@gmail.com
+
+. /etc/os-release
+
+# ====== Check arguments ==========================================================================
+if [ $# -ne 1 ] ; then
+   cat >&2 <<EOF
+Usage: $0 [project]
+Examples:
+* $0 Basic
+* $0 Development
+* $0 KDE
+* $0 KDE+Development
+* $0 HiPerConTracer
+EOF
+   exit 1
+fi
+PROJECT="$1"
+
+# ====== Install dependencies of Virtual Machine Image Builder and System Installation Scripts ====
+if [ "${ID}" = "debian" ] || [ "${ID}" = "ubuntu" ] ; then
+   if [ ! -x  "$(command -v sudo)" ] ; then
+      apt-get update
+      env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends sudo
+   else
+      sudo apt-get update
+   fi
+   sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates git joe
+elif [ "${ID}" = "fedora" ] ; then
+   sudo dnf install --setopt=install_weak_deps=False -y git joe sudo
+elif [ "${ID}" = "freebsd" ] ; then
+   sudo pkg install -y git joe sudo
+else
+   echo >&2 "ERROR: Unknown operating system!"
+   exit 1
+fi
+
+# ====== Clone repository of Virtual Machine Image Builder and System Installation Scripts ========
+mkdir -p "$HOME/src"
+cd "$HOME/src"
+if [ ! -e system-tools ] ; then
+   git clone https://github.com/simula/nornet-vmimage-builder-scripts vmimage-builder-scripts
+   cd  vmimage-builder-scripts
+else
+   cd  vmimage-builder-scripts
+   git pull
+fi
+
+# ====== Run the installation =====================================================================
+sudo ./make-direct "${PROJECT}"
