@@ -35,20 +35,20 @@ EOF
 fi
 PROJECT="$1"
 
+# ====== Ensure that script is run as user, and sudo is available =================================
+if [ "$(id -u)" -eq 0 ] || [ ! -x  "$(command -v sudo)" ] ; then
+   echo >&2 "ERROR: Run this script as user with \"sudo\" permissions, not as root!"
+   exit 1
+fi
+
 # ====== Install dependencies of Virtual Machine Image Builder and System Installation Scripts ====
 if [ "${ID}" = "debian" ] || [ "${ID}" = "ubuntu" ] ; then
-   if [ ! -x  "$(command -v sudo)" ] ; then
-      apt-get update
-      env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends sudo
-   else
-      sudo apt-get update
-   fi
    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       ca-certificates git joe
 elif [ "${ID}" = "fedora" ] ; then
-   sudo dnf install --setopt=install_weak_deps=False -y git joe sudo
+   sudo dnf install --setopt=install_weak_deps=False -y git joe
 elif [ "${ID}" = "freebsd" ] ; then
-   sudo pkg install -y git joe sudo
+   sudo pkg install -y git joe
 else
    echo >&2 "ERROR: Unknown operating system!"
    exit 1
