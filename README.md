@@ -69,18 +69,21 @@ Contributions:
 
 The following installations of dependencies are necessary:
 
-* [Packer](https://www.packer.io) (get up-to-date version from <https://www.packer.io>, the Ubuntu-provided package or snap is out-of-date!)
-* Required [Packer](https://www.packer.io) plug-ins for the hypervisor, e.g.&nbsp;VirtualBox, QEMU, Proxmox, ...
+* For building VMs and containers, [Packer](https://www.packer.io) is required. It is *not* required to run directly on a system!
 
-  ```
-  packer plugins install github.com/hashicorp/virtualbox
-  packer plugins install github.com/hashicorp/proxmox
-  packer plugins install github.com/hashicorp/qemu
-  packer plugins install github.com/hashicorp/docker
-  packer plugins install github.com/hashicorp/vsphere
-  ...
-  packer plugins installed
-  ```
+  - [Packer](https://www.packer.io) (get up-to-date version from <https://www.packer.io>, the Ubuntu-provided package or snap are currently out-of-date!)
+
+  - Required [Packer](https://www.packer.io) plug-ins for the hypervisor, e.g.&nbsp;VirtualBox, QEMU, Proxmox, ...
+
+    ```
+    packer plugins install github.com/hashicorp/virtualbox
+    packer plugins install github.com/hashicorp/proxmox
+    packer plugins install github.com/hashicorp/qemu
+    packer plugins install github.com/hashicorp/docker
+    packer plugins install github.com/hashicorp/vsphere
+    ...
+    packer plugins installed
+    ```
 
 * [CMake](https://cmake.org/), [ExifTool](https://exiftool.org/), [Gimp](https://www.gimp.org/), [GraphicsMagick](http://www.graphicsmagick.org/), [Noto Fonts](https://fonts.google.com/noto), DejaVu Fonts, for building the boot-splash and desktop/screen locker/login background images:
 
@@ -107,12 +110,24 @@ The following installations of dependencies are necessary:
 
 # 💻 Usage
 
-Take a look at the script [make-direct](https://github.com/simula/nornet-vmimage-builder-scripts/blob/master/make-direct) for installing of the system itself (i.e.&nbsp;*not* building VMs but configuring the system itself):
+
+## Run on a pre-installed system directly
+
+Take a look at the script [make-direct](https://github.com/simula/nornet-vmimage-builder-scripts/blob/master/make-direct) for installing on the system itself (i.e.&nbsp;*not* building VMs but configuring the machine directly):
 ```
 ./make-direct <PROJECT>
 ```
 
-To start a VM build, run one the the `make-*` scripts:
+If the system does not have the dependencies installed, run [system-setup](https://github.com/simula/nornet-vmimage-builder-scripts/blob/master/system-setup):
+```
+./system-setup <PROJECT>
+```
+This helper script first installs the dependencies if necessary, and then calls `make-direct`.
+
+
+## Build VMs or containers using Packer
+
+To start a VM or container build (using [Packer](https://www.packer.io)), run one the the `make-*` scripts:
 ```
 ./make-<PROJECT>
 ```
