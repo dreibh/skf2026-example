@@ -57,7 +57,7 @@ fi
 # ====== Clone repository of Virtual Machine Image Builder and System Installation Scripts ========
 mkdir -p "$HOME/src"
 cd "$HOME/src"
-if [ ! -e system-tools ] ; then
+if [ ! -e vmimage-builder-scripts ] ; then
    git clone https://github.com/simula/nornet-vmimage-builder-scripts vmimage-builder-scripts
    cd  vmimage-builder-scripts
 else

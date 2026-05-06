@@ -58,6 +58,9 @@ fi
 
 
 # ====== Make some additions to .bashrc =====================================
+if [ ! -e "/home/${USER_NAME}/.bashrc" ] ; then
+   touch "/home/${USER_NAME}/.bashrc"
+fi
 cat >>"/home/${USER_NAME}/.bashrc" <<EOF
 
 
