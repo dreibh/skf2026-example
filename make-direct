@@ -31,6 +31,9 @@ else
    USER_NAME="$(id -un)"
 fi
 USER_REALNAME="$(getent passwd "${USER_NAME}" | cut -d":" -f5 | cut -d"," -f1)"
+if [ "${USER_REALNAME}" == "" ] ; then
+   USER_REALNAME="${USER_NAME}"
+fi
 
 BOOTSPLASH="/usr/share/bootsplash/Bjørnsund-3840x2160.jpeg"
 BACKGROUND_SDDM="/usr/share/desktop/Nordmarka-3840x2160-mosaic.jpeg"
