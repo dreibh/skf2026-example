@@ -108,12 +108,19 @@ EOF
       architecture="$(dpkg --print-architecture)"
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates wget
 
+      ppaDistribution="resolute"
+      if [[ "${VERSION_ID}" =~ ^[0-9]+$  ]] ; then
+         if [ "${VERSION_ID}" -le 12 ]; then
+            ppaDistribution="focal"
+         fi
+      fi
+
       # ------ Work-around for missing System-Tools in Debian ---------------
       # FIXME! This is not the best solution. Ideally, there should be a
       #        Debian PPA for System-Tools!
       #        Using the packages from the Ubuntu 24.04 (Noble Numbat) PPA:
       cd /tmp
-      wget -4rq --no-parent --accept-regex '.*focal.*deb$' https://ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/td-system-tools/
+      wget -4rq --no-parent --accept-regex ".*${ppaDistribution}.*deb$" https://ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/td-system-tools/
       pkg1="$(find /tmp/ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/td-system-tools/ -name "*_all.deb")"
       pkg2="$(find /tmp/ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/td-system-tools/ -name "*_${architecture}.deb")"
       packages="${pkg1} ${pkg2}"
@@ -127,9 +134,9 @@ EOF
 
       # ------ Work-around for missing TSCTP in Debian < 13 -----------------
       # shellcheck disable=SC2071
-      if [[ "${VERSION_ID}" =~ ^[0-9]+$  ]] && [[ "${VERSION_ID}" -lt 13 ]] ; then
+      if [[ "${VERSION_ID}" =~ ^[0-9]+$ ]] && [[ "${VERSION_ID}" -lt 13 ]] ; then
          cd /tmp
-         wget -4rq --no-parent --accept-regex '.*focal.*deb$' https://ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/tsctp/
+         wget -4rq --no-parent --accept-regex ".*${ppaDistribution}.*deb$" https://ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/tsctp/
 
          pkg1="$(find /tmp/ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/tsctp/ -name "*_all.deb")"
          pkg2="$(find /tmp/ppa.launchpadcontent.net/dreibh/ppa/ubuntu/pool/main/t/tsctp/ -name "*_${architecture}.deb")"
