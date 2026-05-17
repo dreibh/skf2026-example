@@ -82,7 +82,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 
    # ------ Add Debian FastTrack repository ---------------------------------
    if [ "${ID}" == "debian" ] ; then
-      if [[ "${VERSION_ID}" =~ ^[0-9]+$  ]] ; then
+      if [[ "${VERSION_ID}" =~ ^[0-9]+$ ]] ; then
          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fasttrack-archive-keyring
          if [ "${VERSION_ID}" -ge 13 ] ; then
             # On newer Debian versions, it is necessary to specify "signed-by";
@@ -109,8 +109,10 @@ EOF
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates wget
 
       ppaDistribution="resolute"
-      if [[ "${VERSION_ID}" =~ ^[0-9]+$  ]] ; then
-         if [ "${VERSION_ID}" -le 12 ]; then
+      if [[ "${VERSION_ID}" =~ ^[0-9]+$ ]] ; then
+         if [ "${VERSION_ID}" -eq 12 ]; then
+            ppaDistribution="jammy"
+         else
             ppaDistribution="focal"
          fi
       fi
