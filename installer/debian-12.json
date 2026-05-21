@@ -18,8 +18,8 @@
 
 {
   // ====== ISO settings ====================================================
-  "iso_url": "https://cdimage.debian.org/cdimage/archive/12.13.0/amd64/iso-cd/debian-12.13.0-amd64-netinst.iso",
-  "iso_checksum": "sha512:418540edffccff0254dc6c517ce45d1a9b5913107253cea39d6cdec0ff9c7ae47dcba985437991535b476523b12030aba0cc9c21db9e23b1cf2c998aaeea60e5",
+  "iso_url": "https://cdimage.debian.org/cdimage/archive/12.14.0/amd64/iso-cd/debian-12.14.0-amd64-netinst.iso",
+  "iso_checksum": "sha512:85f253c53338ac819e9625b1922bac348dfe2836e6a428ad1cb81bd756dfccfbfbd41398b8e9170aedebc238778f698675b0b19fdbe0d47486cdde2fdbec1855",
   "ssh_username": "{{user `user_name`}}",
   "ssh_password": "{{user `user_password`}}",
   "ssh_pty": true,
