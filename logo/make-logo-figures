@@ -51,4 +51,4 @@ rm -f "${OUTPUT}.pdf1.tmp" "${OUTPUT}.pdf2.tmp" "${OUTPUT}.qdf1.tmp" "${OUTPUT}.
 
 # ====== Make SVG and PNG ===================================================
 pdf2svg "${OUTPUT}.pdf" "${OUTPUT}.svg"
-gm convert "${OUTPUT}.pdf" -resize 1024x "${OUTPUT}.png"
+gs -dNOSAFER -dQUIET -dBATCH -dNOPAUSE -dNOPROMPT -dEPSCrop -dAlignToPixels=0 -dGridFitTT=2 -sDEVICE=pngalpha -r300x -sOUTPUTFILE="${OUTPUT}.png" "${OUTPUT}.pdf"
