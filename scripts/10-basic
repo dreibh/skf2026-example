@@ -306,6 +306,7 @@ elif [ "${ID}" == "fedora" ] ; then
       python3
       rsplib-tools
       rsync
+      strings
       subnetcalc
       tar
       tcpdump
@@ -339,6 +340,9 @@ network:
 EOF
       chmod 600 /etc/netplan/netplan.yaml
    fi
+
+   # netplan-configure.service is not enabled by default:
+   systemctl enable netplan-configure.service || true
 
    if [ -e /etc/selinux/config ] ; then
       # FIXME!
@@ -404,7 +408,7 @@ fi
 
 # ====== Verify command availability ========================================
 
-programs="awk base64 bwm-ng bzip2 chrpath curl dig flock gdisk getfacl htop idn ifconfig joe jq less locate man netperfmeter nmap openssl parallel ping pwgen python3 rsync setfacl subnetcalc System-Info System-Maintenance tar tcpdump traceroute tree tsctp tshark unzip uuid wget zip"
+programs="awk base64 bwm-ng bzip2 chrpath curl dig flock gdisk getfacl htop idn ifconfig joe jq less locate man netperfmeter nmap openssl parallel ping pwgen python3 rsync setfacl strings subnetcalc System-Info System-Maintenance tar tcpdump traceroute tree tsctp tshark unzip uuid wget zip"
 if [ "${ID}" == "ubuntu" ] && [[ "${VERSION_ID}" =~ ^1[2345]\.[01][04]$ ]] ; then
    true
 else
