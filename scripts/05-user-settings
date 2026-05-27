@@ -22,6 +22,16 @@
 set -euxo pipefail
 
 
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   print-utf8 -x 160 -n -s "\e[1;34m█" "▀" "█\e[0m" ;
+   figlet -w 156 "$(basename "$0")" | print-utf8 -x 160 -n -C "\e[1;34m█\e[22m" "\e[1;34m█\e[0m"
+   print-utf8 -x 160 -n -s "\e[1;34m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+
 # ====== Check/set environment variables ====================================
 if [ ! -v USER_NAME ]     || [ "${USER_NAME}"     == "" ] || \
    [ ! -v USER_REALNAME ] || [ "${USER_REALNAME}" == "" ] ; then
@@ -29,6 +39,9 @@ if [ ! -v USER_NAME ]     || [ "${USER_NAME}"     == "" ] || \
    echo >&2 "Example: sudo env USER_NAME=nornetpp USER_REALNAME=\"NorNet Praesum Presum\" $0"
    exit 1
 fi
+USER_GROUP="$(id -gn "${USER_NAME}")"
+USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${USER_NAME}" '$1==user { print $6 }' /etc/passwd)"
+
 if [ ! -e /etc/os-release ] ; then
    echo >&2 "ERROR: /etc/os-release does not exist!"
    exit 1
@@ -39,7 +52,7 @@ UNAME="$(uname)"
 
 # ====== Initial .bashrc ====================================================
 if [ -e /tmp/configuration-files/bashrc ] ; then
-   cp /tmp/configuration-files/bashrc "/home/${USER_NAME}/.bashrc"
+   cp /tmp/configuration-files/bashrc "${USER_HOME}/.bashrc"
    if [ "${ID}" == "freebsd" ]  ; then
       cp /tmp/configuration-files/bashrc /usr/share/skel/.bashrc
    else
@@ -48,19 +61,20 @@ if [ -e /tmp/configuration-files/bashrc ] ; then
 fi
 
 if [ "${ID}" == "freebsd" ] ; then
-   if [ ! -e "/home/${USER_NAME}/.bash_profile" ] ; then
-      cat >"/home/${USER_NAME}/.bash_profile" <<EOF
+   if [ ! -e "${USER_HOME}/.bash_profile" ] ; then
+      cat >"${USER_HOME}/.bash_profile" <<EOF
 test -f ~/.bashrc && source ~/.bashrc
 EOF
    fi
+   chown "${USER_NAME}":"${USER_GROUP}" "${USER_HOME}/.bash_profile"
 fi
 
 
 # ====== Make some additions to .bashrc =====================================
-if [ ! -e "/home/${USER_NAME}/.bashrc" ] ; then
-   touch "/home/${USER_NAME}/.bashrc"
+if [ ! -e "${USER_HOME}/.bashrc" ] ; then
+   touch "${USER_HOME}/.bashrc"
 fi
-cat >>"/home/${USER_NAME}/.bashrc" <<EOF
+cat >>"${USER_HOME}/.bashrc" <<EOF
 
 
 # ---------------------------------------------------------------------------
@@ -74,37 +88,42 @@ export CVSEDITOR=\${EDITOR}
 export SVN_EDITOR=\${EDITOR}
 export XZ_DEFAULTS="--threads=0"
 
-cores=\`getconf _NPROCESSORS_ONLN 2>/dev/null || true\`
-if [ \$cores -gt 1 ] ; then
-   export MAKEFLAGS=-j\${cores}
+if [ "\$(uname)" = "FreeBSD" ] ; then
+   cores=\$(sysctl -n hw.ncpu 2>/dev/null || echo "1")
+else
+   cores=\$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo "1")
+fi
+if [ -n "\${cores}" ] && [ "\${cores}" -gt 1 ] ; then
+   export MAKEFLAGS="-j\${cores}"
 fi
 EOF
-sudo chown "${USER_NAME}":"${USER_NAME}" "/home/${USER_NAME}/.bashrc"
+chown "${USER_NAME}":"${USER_GROUP}" "${USER_HOME}/.bashrc"
 
 
 # ====== Make some directories ==============================================
-sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/src"
+sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/src"
 if command -v chattr 2>/dev/null ; then
-   sudo -u "${USER_NAME}" chattr +c "/home/${USER_NAME}/src" || true
+   sudo -u "${USER_NAME}" chattr +c "${USER_HOME}/src" || true
 fi
-sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/tmp"
+sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/tmp"
 
-sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/.ssh"
-sudo -u "${USER_NAME}" chmod 700 "/home/${USER_NAME}/.ssh"
-sudo -u "${USER_NAME}" touch "/home/${USER_NAME}/.ssh/authorized_keys"
-sudo -u "${USER_NAME}" chmod 600 "/home/${USER_NAME}/.ssh/authorized_keys"
+sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.ssh"
+sudo -u "${USER_NAME}" chmod 700 "${USER_HOME}/.ssh"
+sudo -u "${USER_NAME}" touch "${USER_HOME}/.ssh/authorized_keys"
+sudo -u "${USER_NAME}" chmod 600 "${USER_HOME}/.ssh/authorized_keys"
 
-sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/.cache"
-sudo -u "${USER_NAME}" chmod 700 "/home/${USER_NAME}/.cache"
+sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.cache"
+sudo -u "${USER_NAME}" chmod 700 "${USER_HOME}/.cache"
 
 
 # ====== Git configuration file =============================================
-if ! sudo -u "${USER_NAME}" test -e "/home/${USER_NAME}/.gitconfig" ; then
+if ! sudo -u "${USER_NAME}" test -e "${USER_HOME}/.gitconfig" ; then
+   hostname="$(hostname -f 2>/dev/null || hostname 2>/dev/null || echo "localhost")"
    (
       cat <<EOF
 [user]
 	name = ${USER_REALNAME}
-	email = ${USER_NAME}@$(hostname -f)
+	email = ${USER_NAME}@${hostname}
 [push]
 	default = simple
 	autoSetupRemote = true
@@ -118,12 +137,12 @@ if ! sudo -u "${USER_NAME}" test -e "/home/${USER_NAME}/.gitconfig" ; then
 [color]
 	ui = auto
 EOF
-   ) | sudo -u "${USER_NAME}" tee "/home/${USER_NAME}/.gitconfig"
+   ) | sudo -u "${USER_NAME}" tee "${USER_HOME}/.gitconfig"
 fi
 
 
 # ====== GDB configuration file =============================================
-if ! sudo -u "${USER_NAME}" test -e "/home/${USER_NAME}/.gdbinit" ; then
+if ! sudo -u "${USER_NAME}" test -e "${USER_HOME}/.gdbinit" ; then
    (
       cat <<EOF
 # Enable project-specific local configuration:
@@ -150,32 +169,38 @@ set history size 10000
 
 # Pretty printing for libstdc++:
 python
+import os
 import sys
-sys.path.insert(0, '/usr/share/gcc/python')
-from libstdcxx.v6.printers import register_libstdcxx_printers
-register_libstdcxx_printers (None)
+gcc_python_path = '/usr/share/gcc/python'
+if os.path.exists(gcc_python_path):
+   sys.path.insert(0, gcc_python_path)
+   try:
+      from libstdcxx.v6.printers import register_libstdcxx_printers
+      register_libstdcxx_printers (None)
+   except ImportError:
+      pass
 end
 EOF
-   ) | sudo -u "${USER_NAME}" tee "/home/${USER_NAME}/.gdbinit"
+   ) | sudo -u "${USER_NAME}" tee "${USER_HOME}/.gdbinit"
 fi
 
 
 # ====== User icon ==========================================================
 if [ "${UNAME}" == "Linux" ] ; then
    if [ -e /tmp/face-icons/Face-Tux.png ] ; then
-      sudo -u "${USER_NAME}" cp /tmp/face-icons/Face-Tux.png "/home/${USER_NAME}/.face.icon"
+      sudo -u "${USER_NAME}" cp /tmp/face-icons/Face-Tux.png "${USER_HOME}/.face.icon"
    fi
 elif [ "${UNAME}" == "FreeBSD" ] ; then
    if [ -e /tmp/face-icons/Face-Beastie.png ] ; then
-      sudo -u "${USER_NAME}" cp /tmp/face-icons/Face-Beastie.png "/home/${USER_NAME}/.face.icon"
+      sudo -u "${USER_NAME}" cp /tmp/face-icons/Face-Beastie.png "${USER_HOME}/.face.icon"
    fi
 fi
 
 
 # ====== GnuPG configuration file ===========================================
-if ! sudo -u "${USER_NAME}" test -e "/home/${USER_NAME}/.gnupg/gpg.conf" ; then
-   sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/.gnupg"
-   sudo -u "${USER_NAME}" chmod 700 "/home/${USER_NAME}/.gnupg"
+if ! sudo -u "${USER_NAME}" test -e "${USER_HOME}/.gnupg/gpg.conf" ; then
+   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.gnupg"
+   sudo -u "${USER_NAME}" chmod 700 "${USER_HOME}/.gnupg"
    (
       cat <<EOF
 # use-agent
@@ -183,7 +208,7 @@ if ! sudo -u "${USER_NAME}" test -e "/home/${USER_NAME}/.gnupg/gpg.conf" ; then
 keyserver         hkps://keyserver.ubuntu.com
 keyserver-options no-self-sigs-only
 EOF
-   ) | sudo -u "${USER_NAME}" tee "/home/${USER_NAME}/.gnupg/gpg.conf"
+   ) | sudo -u "${USER_NAME}" tee "${USER_HOME}/.gnupg/gpg.conf"
 fi
 
 
@@ -198,7 +223,7 @@ for key in ${KEYS} ; do
    # obscure firewall rules as well => this may fail here!
    for keyServer in ${KEYSERVERS} ; do
       if sudo -u "${USER_NAME}" gpg \
-            --homedir "/home/${USER_NAME}/.gnupg" \
+            --homedir "${USER_HOME}/.gnupg" \
             --keyserver "hkps://${keyServer}" \
             --keyserver-options no-self-sigs-only \
             --recv-keys "${key}" ; then
@@ -210,16 +235,18 @@ for key in ${KEYS} ; do
    # ------ If this fails, try to fetch the key from the NNTB server --------
    if [ ${foundKey} -eq 0 ] ; then
       if command -v wget 2>/dev/null ; then
-         wget "https://www.nntb.no/~dreibh/${key}.asc" -O "/tmp/${key}.asc"
+         wget "https://www.nntb.no/~dreibh/${key}.asc" -O "/tmp/${key}.asc" || true
       else
-         curl "https://www.nntb.no/~dreibh/${key}.asc" >"/tmp/${key}.asc"
+         curl "https://www.nntb.no/~dreibh/${key}.asc" >"/tmp/${key}.asc" || true
       fi
-      if sudo -u "${USER_NAME}" gpg \
-            --homedir "/home/${USER_NAME}/.gnupg" \
-            --import "/tmp/${key}.asc" ; then
-         echo "Got ${key} from NNTB web server!"
-         foundKey=1
-         break
+      if [ -f "/tmp/${key}.asc" ] ; then
+         if sudo -u "${USER_NAME}" gpg \
+               --homedir "${USER_HOME}/.gnupg" \
+               --import "/tmp/${key}.asc" ; then
+            echo "Got ${key} from NNTB web server!"
+            foundKey=1
+            break
+         fi
       fi
    fi
    # ------ Check for success -----------------------------------------------

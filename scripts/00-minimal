@@ -80,6 +80,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
    packages="
       bash
       bash-completion
+      ca-certificates
       curl
       git
       gnupg
