@@ -22,12 +22,23 @@
 set -euxo pipefail
 
 
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   print-utf8 -x 160 -n -s "\e[1;34m█" "▀" "█\e[0m" ;
+   figlet -w 156 "$(basename "$0")" | print-utf8 -x 160 -n -C "\e[1;34m█\e[22m" "\e[1;34m█\e[0m"
+   print-utf8 -x 160 -n -s "\e[1;34m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+
 # ====== Check/set environment variables ====================================
 if [ ! -v USER_NAME ] || [ "${USER_NAME}" == "" ] ; then
    echo >&2 "Usage: env USER_NAME=<user> $0"
    echo >&2 "Example: sudo env USER_NAME=nornetpp $0"
    exit 1
 fi
+USER_GROUP="$(id -gn "${USER_NAME}")"
 UNAME="$(uname)"
 
 
@@ -36,13 +47,13 @@ if [ "${UNAME}" == "Linux" ] ; then
    TIMEZONE="Europe/Oslo"
    if command -v timedatectl 2>/dev/null ; then
       rm -f /etc/localtime
-      ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime
+      ln -snf "/usr/share/zoneinfo/${TIMEZONE}" /etc/localtime
       # This command may fail in a Docker container, due to systemd not running:
-      timedatectl set-timezone ${TIMEZONE} || true
+      timedatectl set-timezone "${TIMEZONE}" || true
    else
       if command -v apt-get 2>/dev/null ; then
          # ------ Old Ubuntu (12.04 etc.) -----------------------------------
-         if [ ! -e apt ] ; then
+         if ! command -v apt >/dev/null 2>&1 ; then
             echo "${TIMEZONE}" >/etc/timezone
             dpkg-reconfigure -f noninteractive tzdata
          fi
@@ -94,7 +105,7 @@ fi
 # ====== Set sysctls ========================================================
 if [ "${UNAME}" == "Linux" ] ; then
    mkdir -p /etc/sysctl.d
-   cat >>/etc/sysctl.d/01-sysctl.conf <<EOF
+   cat >/etc/sysctl.d/01-sysctl.conf <<EOF
 # ------ Custom settings ----------------------------------------------------
 # Enable ECN:
 net.ipv4.tcp_ecn=1
@@ -149,7 +160,7 @@ fi
 
 # ====== Set FreeBSD console resolution =====================================
 if [ "${UNAME}" == "FreeBSD" ] ; then
-   if [ "${VIDEO}" != "" ] ; then
+   if [ ! -v VIDEO ] && [ "${VIDEO}" != "" ] ; then
       cat >>/boot/loader.conf <<EOF
 efi_max_resolution="${VIDEO}"
 # screen.font="8x14"
@@ -184,9 +195,9 @@ KbdInteractiveAuthentication yes
 
 AcceptEnv                    LANG LC_*
 EOF
-for sftp in /usr/lib/openssh/sftp-server /usr/libexec/sftp-server ; do
-   if [ -e "$sftp" ] ; then
-      echo "Subsystem sftp $sftp" >>/etc/ssh/sshd_config
+for sftp in /usr/lib/openssh/sftp-server /usr/libexec/openssh/sftp-server /usr/libexec/sftp-server ; do
+   if [ -e "${sftp}" ] ; then
+      echo "Subsystem sftp ${sftp}" >>/etc/ssh/sshd_config
       break
    fi
 done
@@ -218,7 +229,7 @@ SendEnv                   LANG LC_*
 EOF
 
 
-# ====== Prepare temorary directories for further setup =====================
+# ====== Prepare temporary directories for further setup ====================
 directories="
    bootsplash-images
    configuration-files
@@ -228,7 +239,8 @@ directories="
    system-info
    wireshark
 "
+
 for directory in ${directories} ; do
    mkdir -p "/tmp/${directory}"
-   chown "${USER_NAME}":"${USER_NAME}" "/tmp/${directory}"
+   chown "${USER_NAME}":"${USER_GROUP}" "/tmp/${directory}"
 done

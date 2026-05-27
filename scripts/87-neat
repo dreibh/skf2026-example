@@ -127,7 +127,7 @@ elif [ "${ID}" == "freebsd" ] ; then
    "
 
    # shellcheck disable=SC2086
-   /usr/sbin/pkg install -y ${packages}
+   pkg install -y ${packages}
 
    # Ensure that fonts configuration is up-to-date:
    fc-cache -fv

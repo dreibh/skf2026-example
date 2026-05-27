@@ -83,7 +83,7 @@ elif [ "${ID}" == "freebsd" ] ; then
 
    packages="zabbix7-agent"
    # shellcheck disable=SC2086
-   /usr/sbin/pkg install -y ${packages}
+   pkg install -y ${packages}
 
    sysrc zabbix_agentd_enable="YES"
    service zabbix_agentd start

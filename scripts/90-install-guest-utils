@@ -141,21 +141,21 @@ elif [ "${ID}" == "freebsd" ] ; then
 
    # ------ VirtualBox ------------------------------------------------------
    if [[ "${HYPERVISOR}" =~ " virtualbox " ]] ; then
-      /usr/sbin/pkg install -y virtualbox-ose-additions-72
+      pkg install -y virtualbox-ose-additions-72
       sysrc vboxguest_enable="YES"   ; service vboxguest   start || true
       sysrc vboxservice_enable="YES" ; service vboxservice start || true
    # ------ vSphere ---------------------------------------------------------
    elif [ "${HYPERVISOR}" == "vmware" ] ; then
       if [ -e /usr/lib/systemd/system/sddm.service ] ; then
          # System has X11 -> also install X11 utilities as well:
-         /usr/sbin/pkg install -y open-vm-tools
+         pkg install -y open-vm-tools
       else
-         /usr/sbin/pkg install -y open-vm-tools-nox11
+         pkg install -y open-vm-tools-nox11
       fi
       sysrc vmware_guestd_enable="YES" ; service vmware-guestd start || true
    # ------ QEMU ------------------------------------------------------------
    elif [[ "${HYPERVISOR}" =~ " kvm " ]] ; then
-      /usr/sbin/pkg install -y qemu-guest-agent
+      pkg install -y qemu-guest-agent
       sysrc qemu_guest_agent_enable="YES" ; service qemu-guest-agent start || true
    fi
 
@@ -163,7 +163,7 @@ elif [ "${ID}" == "freebsd" ] ; then
    if [[ ! "${HYPERVISOR}" =~ " kvm " ]] || [[ "${HYPERVISOR}" =~ " virtualbox " ]] ; then
       # NOTE: qemu-guest-agent may have been installed as part of the
       #       initial setup, since e.g. the Proxmox builder expects it!
-      /usr/sbin/pkg remove -y qemu-guest-agent || true
+      pkg remove -y qemu-guest-agent || true
       sysrc -x qemu_guest_agent_enable || true
    fi
 

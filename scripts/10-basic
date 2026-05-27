@@ -357,7 +357,7 @@ elif [ "${ID}" == "freebsd" ] ; then
    "
 
    # shellcheck disable=SC2086
-   /usr/sbin/pkg install -y ${packages}
+   pkg install -y ${packages}
 
 
 # ------ Unknown ------------------------------------------------------------

@@ -210,7 +210,7 @@ elif [ "${ID}" == "freebsd" ] ; then
    "
 
    # shellcheck disable=SC2086
-   /usr/sbin/pkg install -y ${packages}
+   pkg install -y ${packages}
 
    sysrc dbus_enable="YES" ; service dbus start || true
    sysrc sddm_enable="YES" ; service sddm start || true

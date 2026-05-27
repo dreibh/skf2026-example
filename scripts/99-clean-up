@@ -74,8 +74,8 @@ elif [ "${ID}" == "fedora" ] ; then
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
 
-   /usr/sbin/pkg upgrade -y
-   /usr/sbin/pkg clean -y
+   pkg upgrade -y
+   pkg clean -y
 
 # ------ Unknown ------------------------------------------------------------
 else
