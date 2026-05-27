@@ -27,7 +27,7 @@ set -euxo pipefail
 #
 # It must contain the following packages:
 # * The [KDE Plasma Desktop](https://kde.org/plasma-desktop/) with Oxygen theme and [SDDM](https://github.com/sddm/sddm)
-# * [DejaVu Fonts](https://dejavu-fonts.github.io/) ([DejaVu fonts)
+# * [DejaVu Fonts](https://dejavu-fonts.github.io/) (DejaVu fonts)
 # * [Dia](https://wiki.gnome.org/Apps/Dia) (drawing tool)
 # * [Firefox](https://www.mozilla.org/en-US/firefox/new/) (web browser)
 # * [FractGen](https://www.nntb.no/~dreibh/fractalgenerator/) (fractal generator)
@@ -38,7 +38,7 @@ set -euxo pipefail
 # * [Kile](https://kile.sourceforge.io/) (LaTeX editor)
 # * [Konsole](https://konsole.kde.org/) (console)
 # * [Noto Fonts](https://fonts.google.com/noto) (Noto fonts, complete UTF-8 character range)
-# * [Okteta](https://apps.kde.org/okteta/) Hex editor)
+# * [Okteta](https://apps.kde.org/okteta/) (Hex editor)
 # * [Okular](https://okular.kde.org/) (file viewer, e.g. for PDF)
 # * [Open Sans Fonts](https://fonts.google.com/specimen/Open+Sans) (Open Sans fonts)
 # * [R](https://www.r-project.org/) (statistical computing suite)

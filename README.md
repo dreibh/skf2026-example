@@ -10,7 +10,10 @@
 # Table of Contents
 
 -   [What are the Virtual Machine Image Builder and System Installation Scripts](#what-are-the-virtual-machine-image-builder-and-system-installation-scripts)
--   [VM Types](#vm-types)
+-   [Sources](#sources)
+-   [Requirements](#requirements)
+-   [Usage](#usage)
+-   [Hypervisors](#hypervisors)
     -   [VirtualBox](#virtualbox)
     -   [Proxmox](#proxmox)
     -   [QEMU](#qemu)
@@ -19,7 +22,7 @@
 -   [Systems](#systems)
     -   [Ubuntu Linux](#ubuntu-linux)
     -   [Debian Linux](#debian-linux)
-    -   [Fedora Core Linux](#fedora-core-linux)
+    -   [Fedora Linux](#fedora-core-linux)
     -   [FreeBSD](#freebsd)
 -   [Projects](#projects)
     -   [Minimal](#minimal)
@@ -33,12 +36,13 @@
         -   [NEAT](#neat)
         -   [RSerPoolDemo](#rserpooldemo)
         -   [SimulaMet-Desktop](#simulamet-desktop)
-        -   [5gVINNI](#gvinni)
+        -   [5gVINNI](#5gvinni)
+-   [Useful Links](#useful-links)
 
 
 # 💡 What are the Virtual Machine Image Builder and System Installation Scripts?
 
-This repository contains Virtual Machine (VM) image building and system installation scripts, to automatically generate freshly installed VM or container images for different projects and purposes, like minimal servers, basic console setups, development environments, as well as full desktop machines. The scripts use Packer (<https://www.packer.io>).
+This repository contains Virtual Machine (VM) image building and system installation scripts to automatically generate freshly installed VM or container images for different projects and purposes, like minimal servers, basic console setups, development environments, as well as full desktop machines. The scripts use Packer (<https://www.packer.io>).
 
 As part of the VM setup process, it is also possible to set custom boot-splashes and desktop/screen locker/login background images for customisation.
 
@@ -51,10 +55,10 @@ The Git repository of the Virtual Machine Image Builder and System Installation 
 
 ```bash
 git clone https://github.com/simula/nornet-vmimage-builder-scripts vmimage-builder-scripts
-cd nornet-vmimage-builder-scripts vmimage-builder-scripts
+cd vmimage-builder-scripts
 ```
 
-Note: The repository name "nornet-vmimage-builder-scripts" refers to the [NorNet project](https://www.nntb.no/), since the initial scripts were developed for the purpose of NorNet system installations. However, the scripts are since a long time generic and project-independed. But in order to keep the repository URL as-is, the repository still contains "nornet" in its name.
+Note: The repository name "nornet-vmimage-builder-scripts" refers to the [NorNet project](https://www.nntb.no/), since the initial scripts were developed for the purpose of NorNet system installations. However, the scripts have been generic and project-independent for a long time. But in order to keep the repository URL as-is, the repository still contains "nornet" in its name.
 
 Contributions:
 
@@ -69,7 +73,7 @@ Contributions:
 
 The following installations of dependencies are necessary:
 
-* For building VMs and containers, [Packer](https://www.packer.io) is required. It is *not* required to run directly on a system!
+* For building VMs and containers, [Packer](https://www.packer.io) is required. It is *not* required to be installed on the guest system!
 
   - [Packer](https://www.packer.io) (get up-to-date version from <https://www.packer.io>, the Ubuntu-provided package or snap are currently out-of-date!)
 
@@ -85,7 +89,7 @@ The following installations of dependencies are necessary:
     packer plugins installed
     ```
 
-* [CMake](https://cmake.org/), [ExifTool](https://exiftool.org/), [Gimp](https://www.gimp.org/), [GraphicsMagick](http://www.graphicsmagick.org/), [Noto Fonts](https://fonts.google.com/noto), DejaVu Fonts, for building the boot-splash and desktop/screen locker/login background images:
+* [CMake](https://cmake.org/), [ExifTool](https://exiftool.org/), [Gimp](https://www.gimp.org/), [GraphicsMagick](http://www.graphicsmagick.org/), [Noto Fonts](https://fonts.google.com/noto), [DejaVu Fonts](https://dejavu-fonts.github.io/), for building the boot-splash and desktop/screen locker/login background images:
 
   - Ubuntu/Debian:
 
@@ -127,7 +131,7 @@ This helper script first installs the dependencies if necessary, and then calls 
 
 ## Build VMs or containers using Packer
 
-To start a VM or container build (using [Packer](https://www.packer.io)), run one the the `make-*` scripts:
+To start a VM or container build (using [Packer](https://www.packer.io)), run one of the `make-*` scripts:
 ```
 ./make-<PROJECT>
 ```
@@ -140,15 +144,15 @@ See further details about the different VM hypervisor variants, systems, and pro
 
 ## VirtualBox
 
-The VirtualBox images use optimised settings for display, network and storage. Two disk layouts are available: 3-disks (separate disks for `/`, `/home`, and swap; recommended) and 1-disk (one disk for everything).
+The VirtualBox images use optimised settings for display, network and storage. Two disk layouts are available: 3-disk (separate disks for `/`, `/home`, and swap; recommended) and 1-disk (one disk for everything).
 
 ## Proxmox
 
-VMs for usage in Proxmox. They are basically like the VirtualBox variant, with the QEMU Guest Agent installed. Two disk layouts are available: 3-disks (separate disks for `/`, `/home`, and swap; recommended) and 1-disk (one disk for everything).
+VMs for usage in Proxmox. They are basically like the VirtualBox variant, with the QEMU Guest Agent installed. Two disk layouts are available: 3-disk (separate disks for `/`, `/home`, and swap; recommended) and 1-disk (one disk for everything).
 
 ## QEMU
 
-The QEMU images use optimised settings for display, network and storage. Two disk layouts are available: 3-disks (separate disks for `/`, `/home`, and swap) and 1-disk (one disk for everything). The QEMU images are particularly useful for OpenStack, for which the disk layout should be 1-disk.
+The QEMU images use optimised settings for display, network and storage. Two disk layouts are available: 3-disk (separate disks for `/`, `/home`, and swap) and 1-disk (one disk for everything). The QEMU images are particularly useful for OpenStack, for which the disk layout should be 1-disk.
 
 ## vSphere
 
@@ -167,7 +171,7 @@ The following operating systems are currently supported as VM guests:
 
 * [Ubuntu Linux](https://ubuntu.com/)
 * [Debian Linux](https://www.debian.org/)
-* [Fedora Core Linux](https://getfedora.org/de/)
+* [Fedora Linux](https://getfedora.org/de/)
 * [FreeBSD](https://www.freebsd.org/)
 
 Details can be found in the directories [installer](https://github.com/simula/nornet-vmimage-builder-scripts/tree/master/installer) and [http](https://github.com/simula/nornet-vmimage-builder-scripts/tree/master/http).
@@ -190,11 +194,11 @@ General settings:
 * EFI boot
 * Using BTRFS for `/` and `/home`, with subvolumes `@` and `@home`
 
-## Fedora Core Linux
+## Fedora Linux
 
 General settings:
 
-* Base: Fedora Core Netinstall ISO
+* Base: Fedora Netinstall ISO
 * EFI boot
 * Using XFS for `/` and `/home`
 * Added COPR PPA dreibh/ppa (<https://copr.fedorainfracloud.org/coprs/dreibh/ppa/>)
@@ -289,7 +293,7 @@ The "KDE" installation is based on the [Basic](#basic) installation.
 It must contain the following packages:
 
 * The [KDE Plasma Desktop](https://kde.org/plasma-desktop/) with Oxygen theme and [SDDM](https://github.com/sddm/sddm)
-* [DejaVu Fonts](https://dejavu-fonts.github.io/) ([DejaVu fonts)
+* [DejaVu Fonts](https://dejavu-fonts.github.io/) (DejaVu fonts)
 * [Dia](https://wiki.gnome.org/Apps/Dia) (drawing tool)
 * [Firefox](https://www.mozilla.org/en-US/firefox/new/) (web browser)
 * [FractGen](https://www.nntb.no/~dreibh/fractalgenerator/) (fractal generator)
@@ -300,7 +304,7 @@ It must contain the following packages:
 * [Kile](https://kile.sourceforge.io/) (LaTeX editor)
 * [Konsole](https://konsole.kde.org/) (console)
 * [Noto Fonts](https://fonts.google.com/noto) (Noto fonts, complete UTF-8 character range)
-* [Okteta](https://apps.kde.org/okteta/) Hex editor)
+* [Okteta](https://apps.kde.org/okteta/) (Hex editor)
 * [Okular](https://okular.kde.org/) (file viewer, e.g. for PDF)
 * [Open Sans Fonts](https://fonts.google.com/specimen/Open+Sans) (Open Sans fonts)
 * [R](https://www.r-project.org/) (statistical computing suite)
@@ -325,10 +329,10 @@ The "Development" installation is based on the [Basic](#basic) installation.
 It must contain the following packages:
 
 * [BC](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/bc.html) (arbitrary precision calculator language)
-* [CLang](https://clang.llvm.org/) (CLang C and C++ compilers)
+* [Clang](https://clang.llvm.org/) (Clang C and C++ compilers)
 * [CMake](https://cmake.org/) (build tool)
 * [CreateRepo](https://www.percona.com/blog/how-to-create-your-own-repositories-for-packages/) (RPM repository build tool; on Fedora Linux systems only!)
-* [DejaVu Fonts](https://dejavu-fonts.github.io/) ([DejaVu fonts)
+* [DejaVu Fonts](https://dejavu-fonts.github.io/) (DejaVu fonts)
 * [ExifTool](https://exiftool.org/) (EXIF metadata editing tool for images)
 * [Docker](https://www.docker.com/) (Docker container management; on Linux systems only!)
 * [GhostScript](https://www.ghostscript.com/) (PostScript interpreter and fonts)
@@ -348,7 +352,7 @@ It must contain the following packages:
 * [URW Base 35 Fonts](https://github.com/ArtifexSoftware/urw-base35-fonts) (URW Base 35 fonts)
 * [Valgrind](https://valgrind.org/) (debugging tool; if available for architecture)
 * [YamlLint](https://github.com/adrienverge/yamllint) (checker tool for YAML)
-* [RepRepro](https://wiki.debian.org/DebianRepository/SetupWithReprepro) (DEB repository build tool; on Linux systems only!)
+* [Reprepro](https://wiki.debian.org/DebianRepository/SetupWithReprepro) (DEB repository build tool; on Linux systems only!)
 * [PBuilder](https://pbuilder-team.pages.debian.net/pbuilder/) (DEB build tool; on Debian/Ubuntu Linux systems only!)
 
 It must contain the following libraries and development files:
@@ -376,11 +380,11 @@ Basic for general-purpose server usage, particularly for working with [NorNet](h
 
 ### NorNet-Desktop
 
-Basic NorNet VMs for general-purpose desktop usage. They base on the NorNet images, with additional KDE desktop.
+Basic NorNet VMs for general-purpose desktop usage. They are based on the NorNet images, with additional KDE desktop.
 
 ### NEAT
 
-Basic for general-purpose desktop usage, particularly for working with [NEAT](https://neat.nntb.no/). They base on the NorNet-Desktop images, with NEAT packages and build environment.
+Basic for general-purpose desktop usage, particularly for working with [NEAT](https://neat.nntb.no/). They are based on the NorNet-Desktop images, with NEAT packages and build environment.
 
 Features:
 
@@ -408,7 +412,7 @@ Features:
 
 ### 5gVINNI
 
-Basic for general-purpose desktop usage, particularly for working with [5gVINNI](https://www.5g-vinni.eu/). They base on the NorNet images.
+Basic for general-purpose desktop usage, particularly for working with [5gVINNI](https://www.5g-vinni.eu/). They are based on the NorNet images.
 
 
 # 🔗 Useful Links
