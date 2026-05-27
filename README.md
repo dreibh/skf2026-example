@@ -352,7 +352,7 @@ It must contain the following packages:
 * [URW Base 35 Fonts](https://github.com/ArtifexSoftware/urw-base35-fonts) (URW Base 35 fonts)
 * [Valgrind](https://valgrind.org/) (debugging tool; if available for architecture)
 * [YamlLint](https://github.com/adrienverge/yamllint) (checker tool for YAML)
-* [Reprepro](https://wiki.debian.org/DebianRepository/SetupWithReprepro) (DEB repository build tool; on Linux systems only!)
+* [Reprepro](https://wiki.debian.org/DebianRepository/SetupWithReprepro) (DEB repository build tool; on Debian/Ubuntu Linux systems only!)
 * [PBuilder](https://pbuilder-team.pages.debian.net/pbuilder/) (DEB build tool; on Debian/Ubuntu Linux systems only!)
 
 It must contain the following libraries and development files:

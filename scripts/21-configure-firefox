@@ -31,6 +31,9 @@ set -euo pipefail
 # * https://github.com/K3V1991/Disable-Firefox-Telemetry-and-Data-Collection
 
 
+HOMEPAGE="https://www.nntb.no/~dreibh"
+
+
 # ====== Print script name, to make Packer output easier readable ===========
 if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
    LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;32m█" "▀" "█\e[0m"
@@ -50,7 +53,6 @@ if [ ! -e /etc/os-release ] ; then
    exit 1
 fi
 . /etc/os-release
-HOMEPAGE="https://www.nntb.no/~dreibh"
 
 
 # ====== Ensure that script is ran by user account to provision =============
@@ -68,7 +70,7 @@ if [ "$(id -u)" -eq 0 ] ; then
    fi
 else
    # Echo running as user
-   echo "Running as ${USER}! SUDO_USER=${SUDO_USER}"
+   echo "Running as ${USER}! SUDO_USER=${SUDO_USER:-}"
 fi
 
 if [ "${ID}" == "ubuntu" ] ; then
@@ -78,7 +80,7 @@ if [ "${ID}" == "ubuntu" ] ; then
    fi
 fi
 
-if ! which unzip ; then
+if ! command -v unzip >/dev/null ; then
    echo >&2 "ERROR: unzip command is not available!"
    exit 1
 fi
@@ -92,16 +94,16 @@ function get-xpi-uid ()
    local LOC_UID=""
 
    # get extension UID from install.rdf in original format (<em:id>extension-uid</em:id>)
-   LOC_UID=$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "<em:id>" | head -n 1 | cut -d'>' -f2 | cut -d'<' -f1)
+   LOC_UID="$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "<em:id>" | head -n 1 | cut -d'>' -f2 | cut -d'<' -f1 || true)"
 
    # if extension UID not found, get it from install.rdf in new format (<RDF:Description ... em:id="{extension-uid}" ...)
-   [ "${LOC_UID}" = "" ] && LOC_UID=$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "em:id=" | head -n 1 | sed "s/^.*em:id=\"\([^\"]*\).*$/\1/")
+   [ "${LOC_UID}" = "" ] && LOC_UID="$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "em:id=" | head -n 1 | sed "s/^.*em:id=\"\([^\"]*\).*$/\1/" || true)"
 
    # if extension UID not found, get it from key "id" in manifest.json ("id": "extension-uid")
-   [ "${LOC_UID}" = "" ] && LOC_UID=$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"id\"" | head -n 1 | cut -d'"' -f4)
+   [ "${LOC_UID}" = "" ] && LOC_UID="$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"id\"" | head -n 1 | cut -d'"' -f4 || true)"
 
    # if extension UID not found, get it from key "name" in manifest.json ("name": "extension name")
-   [ "${LOC_UID}" = "" ] && LOC_UID=$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"name\"" | head -n 1 | cut -d'"' -f4 | tr ' ' '-')
+   [ "${LOC_UID}" = "" ] && LOC_UID="$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"name\"" | head -n 1 | cut -d'"' -f4 | tr ' ' '-' || true)"
 
    # display extension UID
    echo "${LOC_UID}"
@@ -116,13 +118,13 @@ function get-xpi-name ()
    local LOC_NAME=""
 
    # get extension name from install.rdf in original format (<em:id>extension-uid</em:id>)
-   LOC_NAME=$(unzip -qq  -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "<em:name>" | head -n 1 | cut -d'>' -f2 | cut -d'<' -f1)
+   LOC_NAME="$(unzip -qq  -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "<em:name>" | head -n 1 | cut -d'>' -f2 | cut -d'<' -f1 || true)"
 
    # if extension name not found, get it from install.rdf in new format (<RDF:Description ... em:name="extension-name" ...)
-   [ "${LOC_NAME}" = "" ] && LOC_NAME=$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "em:name=" | head -n 1 | sed "s/^.*em:name//" | cut -d'"' -f2)
+   [ "${LOC_NAME}" = "" ] && LOC_NAME="$(unzip -qq -p "${LOC_XPI}" install.rdf 2>/dev/null | grep "em:name=" | head -n 1 | sed "s/^.*em:name//" | cut -d'"' -f2 || true)"
 
    # if extension name not found, get it from key "name" in manifest.json ("name": "extension name")
-   [ "${LOC_NAME}" = "" ] && LOC_NAME=$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"name\"" | head -n 1 | cut -d'"' -f4)
+   [ "${LOC_NAME}" = "" ] && LOC_NAME="$(unzip -qq -p "${LOC_XPI}" manifest.json 2>/dev/null | grep "\"name\"" | head -n 1 | cut -d'"' -f4 || true)"
 
    # display extension name
    echo "${LOC_NAME}"
@@ -142,8 +144,15 @@ function install-xpi ()
    MY_XPI="/tmp/${number}.xpi"
 
    echo "Downloading add-on ${number} to ${MY_XPI} ..."
-   wget -q -O "${MY_XPI}" "${URL1}" || \
-      wget -q -O "${MY_XPI}" "${URL2}"
+   if wget -q -O "${MY_XPI}" "${URL1}" || wget -q -O "${MY_XPI}" "${URL2}" ; then
+      if [ ! -f "${MY_XPI}" ] || [ ! -s "${MY_XPI}" ] ; then
+         echo >&2 "ERROR: Downloaded file ${MY_XPI} is empty or missing!"
+         exit 1
+      fi
+   else
+      echo >&2 "ERROR: Failed to download add-on ${number} from Mozilla addons!"
+      exit 1
+   fi
 
    # ====== Check XPI =======================================================
    MY_UID=$(get-xpi-uid "${MY_XPI}")
@@ -157,6 +166,7 @@ function install-xpi ()
 
    # ====== Copy XPI ========================================================
    for profilePath in ${profilePaths} ; do
+      mkdir -p "${profilePath}/extensions"
       cp "${MY_XPI}" "${profilePath}/extensions/${MY_UID}.xpi"
    done
    rm -f "${MY_XPI}"
@@ -174,9 +184,8 @@ function run-firefox-headless ()
    echo "Waiting a moment to let Firefox initialise the profile (PID ${pid}) ..."
    sleep 45
    echo "Stopping Firefox ..."
-   kill -s TERM ${pid}   # Executable is /usr/lib*/firefox/firefox
-
-   wait
+   kill -s TERM ${pid} 2>/dev/null || true   # Executable is /usr/lib*/firefox/firefox
+   wait ${pid} 2>/dev/null || true
 }
 
 
@@ -196,11 +205,9 @@ if [ ! -d "${FIREFOX_CONFIGDIR}" ] ; then
    profileName="profile-$(dd if=/dev/urandom bs=16 count=1 status=none|hexdump -v -e '"%02X"')"
 
    echo "###### Creating new profile ${profileName}! ######"
-   mkdir -p "${FIREFOX_CONFIGDIR}"
+   mkdir -p "${FIREFOX_CONFIGDIR}/${profileName}/extensions"
    pushd "${FIREFOX_CONFIGDIR}" >/dev/null
 
-   mkdir "${profileName}"
-   mkdir "${profileName}/extensions"
    cat >profiles.ini <<EOF
 [Profile0]
 Name=default-release
@@ -223,27 +230,28 @@ PROFILE_PATHS=""
 if [ -e "${FIREFOX_CONFIGDIR}/profiles.ini" ] ; then
    profilePaths=$(grep "^Path=" "${FIREFOX_CONFIGDIR}/profiles.ini" | sed -e "s/^Path=//g")
    for profilePath in ${profilePaths} ; do
-      if [ -d "${FIREFOX_CONFIGDIR}/${profilePath}/extensions/" ] ; then
+      if [ -d "${FIREFOX_CONFIGDIR}/${profilePath}" ] ; then
          echo " * ${profilePath}"
+         mkdir -p "${FIREFOX_CONFIGDIR}/${profilePath}/extensions"
          PROFILE_PATHS="${PROFILE_PATHS} ${FIREFOX_CONFIGDIR}/${profilePath}"
       fi
    done
 fi
 if [ "${PROFILE_PATHS}" == "" ] ; then
-   echo 2>&1 "ERROR: Unable to detect Firefox profile paths!"
+   echo >&2 "ERROR: Unable to detect Firefox profile paths!"
    exit 1
 fi
 
 
 # ====== Install extensions =================================================
 EXTENSIONS=""
-EXTENSIONS="${EXTENSIONS=} 607454"   # uBlock Origin
-EXTENSIONS="${EXTENSIONS=} 722"      # NoScript
-EXTENSIONS="${EXTENSIONS=} 5791"     # FlagFox
-EXTENSIONS="${EXTENSIONS=} 6822"     # Binnen-I be gone
-EXTENSIONS="${EXTENSIONS=} 4069651"  # I still don't care about cookies
-EXTENSIONS="${EXTENSIONS=} 4040738"  # Cookie AutoDelete
-EXTENSIONS="${EXTENSIONS=} 3859385"  # KDE Plasma Integration
+EXTENSIONS="${EXTENSIONS} 607454"   # uBlock Origin
+EXTENSIONS="${EXTENSIONS} 722"      # NoScript
+EXTENSIONS="${EXTENSIONS} 5791"     # FlagFox
+EXTENSIONS="${EXTENSIONS} 6822"     # Binnen-I be gone
+EXTENSIONS="${EXTENSIONS} 4069651"  # I still don't care about cookies
+EXTENSIONS="${EXTENSIONS} 4040738"  # Cookie AutoDelete
+EXTENSIONS="${EXTENSIONS} 3859385"  # KDE Plasma Integration
 
 for extension in ${EXTENSIONS} ; do
    install-xpi "${extension}" "${PROFILE_PATHS}"
@@ -403,21 +411,25 @@ for profilePath in ${PROFILE_PATHS} ; do
 
    # ------ Activate the newly installed extensions -------------------------
    echo "Updating ${profilePath}/extensions.json ..."
-   jq . <"${profilePath}/extensions.json" >"${profilePath}/extensions.json.old"
-   cp "${profilePath}/extensions.json" "${profilePath}/extensions.json.work"
-   for uid in ${uids} ; do
-      echo "Activating extension ${uid} ..."
-      # shellcheck disable=SC2002
-      cat "${profilePath}/extensions.json.work" | jq \
-         "(.addons[] | select(.id == \"${uid}\") | .active) |= true" | \
-         jq \
-            "(.addons[] | select(.id == \"${uid}\") | .userDisabled) |= false" \
-            >"${profilePath}/extensions.json.new"
-      mv "${profilePath}/extensions.json.new" "${profilePath}/extensions.json.work"
-   done
-   # diff "${profilePath}/extensions.json.old" "${profilePath}/extensions.json.work" || true
-   mv "${profilePath}/extensions.json.work" "${profilePath}/extensions.json"
-   echo "Updated ${profilePath}/extensions.json"
+   if [ -f "${profilePath}/extensions.json" ] ; then
+      jq . <"${profilePath}/extensions.json" >"${profilePath}/extensions.json.old"
+      cp "${profilePath}/extensions.json" "${profilePath}/extensions.json.work"
+      for uid in ${uids} ; do
+         echo "Activating extension ${uid} ..."
+         # shellcheck disable=SC2002
+         cat "${profilePath}/extensions.json.work" | jq \
+            "(.addons[] | select(.id == \"${uid}\") | .active) |= true" | \
+            jq \
+               "(.addons[] | select(.id == \"${uid}\") | .userDisabled) |= false" \
+               >"${profilePath}/extensions.json.new"
+         mv "${profilePath}/extensions.json.new" "${profilePath}/extensions.json.work"
+      done
+      # diff "${profilePath}/extensions.json.old" "${profilePath}/extensions.json.work" || true
+      mv "${profilePath}/extensions.json.work" "${profilePath}/extensions.json"
+      echo "Updated ${profilePath}/extensions.json"
+   else
+      echo >&2 "WARNING: ${profilePath}/extensions.json not found!"
+   fi
 
    # user.js now has to tell Firefox to perform the initialisation of the add-ons:
    cat >"${profilePath}/user.js" <<EOF
@@ -429,7 +441,7 @@ EOF
    run-firefox-headless
 
    # Remove user.js
-   rm "${profilePath}/user.js"
+   rm -f "${profilePath}/user.js"
 
 done
 

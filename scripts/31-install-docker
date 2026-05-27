@@ -19,7 +19,20 @@
 # Contact: thomas.dreibholz@gmail.com
 
 # Bash options:
-set -euxo pipefail
+set -euo pipefail
+
+
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;33m█" "▀" "█\e[0m"
+   figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;33m█\e[22m" "\e[1;33m█\e[0m"
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;33m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+# Enable printing the command-lines executed:
+set -x
 
 
 # ====== Check/set environment variables ====================================
@@ -95,19 +108,22 @@ elif [ "${ID}" == "freebsd" ] ; then
 
    pkg install -y podman-suite
 
-   if [ ! -e /etc/pf.conf ] ; then
-      interface="$(ifconfig -l | cut -d' ' -f1)"
+   if [ ! -e /etc/pf.conf ] && [ -e /usr/local/etc/containers/pf.conf.sample ] ; then
+      interface="$(route -n get default 2>/dev/null | awk '/interface:/ { print $2 }')"
+      if [ -z "${interface}" ] ; then
+         interface="$(ifconfig -l | cut -d' ' -f1)"
+      fi
       sed -e "s/^v4egress_if[ \t]*=.*$/v4egress_if = ${interface}/" \
           -e "s/^v6egress_if[ \t]*=.*$/v6egress_if = ${interface}/" \
           </usr/local/etc/containers/pf.conf.sample \
           >/etc/pf.conf
    fi
-   service pf enable
-   service pf start
-   service linux enable
-   service linux start
-   service podman enable
-   service podman start
+   sysrc pf_enable="YES" || true
+   service pf start || true
+   sysrc linux_enable="YES" || true
+   service linux start || true
+   sysrc podman_enable="YES" || true
+   service podman start || true
 
    # Tests:
    # sudo podman run -it --rm ghcr.io/freebsd/freebsd-runtime:14.3 freebsd-version
@@ -136,7 +152,7 @@ if [ -d "/etc/docker" ] && [ ! -e "/etc/docker/daemon.json" ] ; then
   "ipv6": true
 }
 EOF
-   ) | sudo tee "/etc/docker/daemon.json"
+   ) | tee "/etc/docker/daemon.json"
    service docker restart || true
 fi
 if [ -e "/usr/local/etc/containers/containers.conf" ] ; then

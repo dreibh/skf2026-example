@@ -46,24 +46,43 @@ USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${US
 UNAME="$(uname)"
 
 
-# ====== Prepare configuration file =========================================
-if [ ! -e "${USER_HOME}/.config/strawberry/strawberry.conf" ] ; then
-   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/strawberry"
-   ( cat <<EOF
+# ====== Prepare configuration and playlist files ===========================
+skelDirectory="/etc/skel"
+if [ "${UNAME}" == "FreeBSD" ] ; then
+   skelDirectory="/usr/share/skel"
+fi
+
+for targetDirectory in "${USER_HOME}" "${skelDirectory}" ; do
+   # ------ Create configuration file ---------------------------------------
+   if [ ! -e "${targetDirectory}/.config/strawberry/strawberry.conf" ] ; then
+      mkdir -p "${targetDirectory}/.config/strawberry"
+      cat >"${targetDirectory}/.config/strawberry/strawberry.conf" <<EOF
 [MainWindow]
 do_not_show_sponsor_message=true
 EOF
-   ) | sudo -u "${USER_NAME}" tee "${USER_HOME}/.config/strawberry/strawberry.conf"
-fi
-
-# ====== Add a playlist for Strawberry ======================================
-if [ -e /tmp/data-files/Radios.m3u ] ; then
-   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/Music"
-   sudo -u "${USER_NAME}" cp /tmp/data-files/Radios.m3u "${USER_HOME}/Music"
-fi
-if [ -e "${USER_HOME}/Music/Radios.m3u" ] ; then
-   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/Desktop"
-   if [ ! -e "${USER_HOME}/Desktop/Radios.m3u" ] ; then
-      sudo -u "${USER_NAME}" ln -s "${USER_HOME}/Music/Radios.m3u" "${USER_HOME}/Desktop/"
    fi
+
+   # ------ Copy playlist ---------------------------------------------------
+   if [ -e /tmp/data-files/Radios.m3u ] ; then
+      mkdir -p "${targetDirectory}/Music"
+      cp /tmp/data-files/Radios.m3u "${targetDirectory}/Music/"
+   fi
+
+   # ------ Link playlist to desktop ----------------------------------------
+   if [ -e "${targetDirectory}/Music/Radios.m3u" ] ; then
+      mkdir -p "${targetDirectory}/Desktop"
+      if [ ! -e "${targetDirectory}/Desktop/Radios.m3u" ] ; then
+         ln -s "../Music/Radios.m3u" "${targetDirectory}/Desktop/"
+      fi
+   fi
+done
+
+
+# ====== Apply proper permissions and ownership =============================
+chown -R "${USER_NAME}":"${USER_GROUP}" "${USER_HOME}/.config/strawberry"
+if [ -d "${USER_HOME}/Music" ] ; then
+   chown -R "${USER_NAME}":"${USER_GROUP}" "${USER_HOME}/Music"
+fi
+if [ -d "${USER_HOME}/Desktop" ] ; then
+   chown -R "${USER_NAME}":"${USER_GROUP}" "${USER_HOME}/Desktop"
 fi
