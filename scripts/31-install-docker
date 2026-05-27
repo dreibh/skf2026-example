@@ -159,7 +159,7 @@ if [ "$(uname)" == "Linux" ] ; then
    # shellcheck disable=SC2043
    for command in docker ; do
       echo -n "${command}: "
-      if which ${command} >/dev/null ; then
+      if command -v "${command}" >/dev/null 2>&1 ; then
          echo "OK"
       else
          echo "FAILED!"

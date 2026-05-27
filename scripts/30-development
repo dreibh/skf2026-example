@@ -330,7 +330,7 @@ echo "Verifying command availability:"
 errors=0
 for command in ${programs} ; do
    echo -n "${command}: "
-   if which "${command}" >/dev/null ; then
+   if command -v "${command}" >/dev/null 2>&1 ; then
       echo "OK"
    else
       echo "FAILED!"
@@ -341,7 +341,7 @@ if [ "$(uname)" == "Linux" ] ; then
    if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       for command in reprepro pbuilder ; do
          echo -n "${command}: "
-         if which ${command} >/dev/null ; then
+         if command -v "${command}" >/dev/null 2>&1 ; then
             echo "OK"
          else
             echo "FAILED!"
@@ -351,7 +351,7 @@ if [ "$(uname)" == "Linux" ] ; then
    elif [ "${ID}" == "fedora" ] ; then
       for command in createrepo mock ; do
          echo -n "${command}: "
-         if which ${command} >/dev/null ; then
+         if command -v "${command}" >/dev/null 2>&1 ; then
             echo "OK"
          else
             echo "FAILED!"
