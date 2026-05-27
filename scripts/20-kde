@@ -19,7 +19,7 @@
 # Contact: thomas.dreibholz@gmail.com
 
 # Bash options:
-set -euxo pipefail
+set -euo pipefail
 
 
 # ###########################################################################
@@ -56,6 +56,19 @@ set -euxo pipefail
 # ###########################################################################
 
 
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;32m█" "▀" "█\e[0m"
+   figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;32m█\e[22m" "\e[1;32m█\e[0m"
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;32m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+# Enable printing the command-lines executed:
+set -x
+
+
 # ====== Check/set environment variables ====================================
 if [ ! -e /etc/os-release ] ; then
    echo >&2 "ERROR: /etc/os-release does not exist!"
@@ -76,7 +89,6 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       fonts-open-sans
       fractgen
       kde-plasma-desktop
-      kde-style-oxygen-qt5
       gimp
       gstreamer1.0-libav
       inkscape
@@ -92,14 +104,6 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       sddm-theme-breeze
       wireshark
    "
-
-   # ------ Distribution-specific KDE meta package --------------------------
-   # if [ "${ID}" == "debian" ] ; then
-   #    # See also: https://wiki.debian.org/KDE
-   #    packages="${packages} kde-standard"
-   # else
-   #    packages="${packages} kubuntu-desktop"
-   # fi
 
    # ------ Add Firefox package ---------------------------------------------
    if [ "${ID}" == "debian" ] ; then
@@ -119,7 +123,7 @@ Package: firefox
 Pin: release o=LP-PPA-mozillateam
 Pin-Priority: 1024
 EOF
-         sudo add-apt-repository -sy ppa:mozillateam/ppa
+         add-apt-repository -sy ppa:mozillateam/ppa
       fi
    fi
 
@@ -127,6 +131,10 @@ EOF
    # shellcheck disable=SC2086
    env DEBIAN_FRONTEND=noninteractive apt-get install -y ${packages} || \
       env DEBIAN_FRONTEND=noninteractive apt-get install -o Acquire::ForceIPv4=true -y ${packages}
+
+   # Oxygen style for Qt6 or Qt5:
+   env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kde-style-oxygen-qt6 || \
+      env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends kde-style-oxygen-qt5
 
    # Only newer system versions have Strawberry, install Clementine instead:
    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends strawberry ||
@@ -161,7 +169,6 @@ elif [ "${ID}" == "fedora" ] ; then
       oxygen-icon-theme
       plasma-oxygen
       plasma-workspace-x11
-      qt5-style-oxygen
       strawberry
       wireshark
    "
@@ -194,7 +201,7 @@ elif [ "${ID}" == "freebsd" ] ; then
       gstreamer1-plugins-soup
       libreoffice
       noto
-      opensans-ttf-3.003
+      opensans-ttf
       okteta
       oxygen-fonts
       plasma6-plasma

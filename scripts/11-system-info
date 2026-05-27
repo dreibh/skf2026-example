@@ -31,7 +31,8 @@ else
    echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
 fi
 
-set -euxo pipefail
+# Enable printing the command-lines executed:
+set -x
 
 
 # ====== Check/set environment variables ====================================
