@@ -330,6 +330,7 @@ elif [ "${ID}" == "fedora" ] ; then
       cat >/etc/netplan/netplan.yaml <<EOF
 network:
   version: 2
+  renderer: NetworkManager
   ethernets:
     ${interface}:
       dhcp4: true
