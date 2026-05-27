@@ -19,7 +19,20 @@
 # Contact: thomas.dreibholz@gmail.com
 
 # Bash options:
-set -euxo pipefail
+set -euo pipefail
+
+
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;35m█" "▀" "█\e[0m"
+   figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;35m█\e[22m" "\e[1;35m█\e[0m"
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;35m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+# Enable printing the command-lines executed:
+set -x
 
 
 # ###### Clone or update Git repository #####################################
@@ -32,10 +45,10 @@ clone-or-update ()
    if [ ! -e "${repository}" ] ; then
       try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git clone "${url}" "${repository}"
    else
-      pushd "${repository}"
+      pushd "${repository}" >/dev/null
       try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git fetch --all
       try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git pull
-      popd
+      popd >/dev/null
    fi
 }
 
@@ -46,6 +59,8 @@ if [ ! -v USER_NAME ] || [ "${USER_NAME}" == "" ] ; then
    echo >&2 "Example: sudo env USER_NAME=nornetpp $0"
    exit 1
 fi
+USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${USER_NAME}" '$1==user { print $6 }' /etc/passwd)"
+
 if [ ! -e /etc/os-release ] ; then
    echo >&2 "ERROR: /etc/os-release is not available!"
    exit 1
@@ -54,8 +69,8 @@ fi
 
 
 # ====== Prepare source repositories ========================================
-sudo -u "${USER_NAME}" mkdir -p "/home/${USER_NAME}/src"
-cd "/home/${USER_NAME}/src"
+sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/src"
+cd "${USER_HOME}/src"
 
 clone-or-update hipercontracer          https://dreibh@github.com/dreibh/hipercontracer
 
@@ -67,7 +82,7 @@ clone-or-update vmimage-builder-scripts https://dreibh@github.com/simula/nornet-
 
 
 # ====== Build ==============================================================
-cd "/home/${USER_NAME}/src/hipercontracer"
+cd "${USER_HOME}/src/hipercontracer"
 
 # # NOTE: Build the upcoming version 3.0
 # sudo -u "${USER_NAME}" git checkout tartan
@@ -87,6 +102,7 @@ fi
 sudo -u "${USER_NAME}" make -j"${cores}"
 make install
 
-# Run test
+
+# ====== Run MariaDB test ===================================================
 cd src/TestDB
 sudo -u "${USER_NAME}" ./run-full-test mariadb
