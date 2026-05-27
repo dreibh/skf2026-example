@@ -19,6 +19,18 @@
 # Contact: thomas.dreibholz@gmail.com
 
 # Bash options:
+set -euo pipefail
+
+
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;34m█" "▀" "█\e[0m"
+   figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;34m█\e[22m" "\e[1;34m█\e[0m"
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;34m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;34;22m########## $(basename "$0") ##########\e[0m"
+fi
+
 set -euxo pipefail
 
 
@@ -53,6 +65,7 @@ EOF
 # # deb https://repo.zabbix.com/zabbix/${zabbixVersion}/unstable/${ID} ${VERSION_CODENAME} main
 # # deb-src https://repo.zabbix.com/zabbix/${zabbixVersion}/unstable/${ID} ${VERSION_CODENAME} main
 # EOF
+   mkdir -p /etc/apt/trusted.gpg.d
    rm -f /etc/apt/trusted.gpg.d/zabbix-official-repo.gpg
    curl -fsSL https://repo.zabbix.com/zabbix-official-repo.key | \
       gpg --batch --dearmor -o /etc/apt/trusted.gpg.d/zabbix-official-repo.gpg
@@ -64,8 +77,8 @@ EOF
    # shellcheck disable=SC2086
    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
 
-   systemctl enable zabbix-agent
-   systemctl start  zabbix-agent
+   systemctl enable zabbix-agent || true
+   systemctl start  zabbix-agent || true
 
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
@@ -75,8 +88,8 @@ elif [ "${ID}" == "fedora" ] ; then
    # shellcheck disable=SC2086
    dnf install --setopt=install_weak_deps=False -y ${packages}
 
-   systemctl enable zabbix-agent
-   systemctl start  zabbix-agent
+   systemctl enable zabbix-agent || true
+   systemctl start  zabbix-agent || true
 
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
@@ -86,7 +99,7 @@ elif [ "${ID}" == "freebsd" ] ; then
    pkg install -y ${packages}
 
    sysrc zabbix_agentd_enable="YES"
-   service zabbix_agentd start
+   service zabbix_agentd start || true
 
 # ------ Unknown ------------------------------------------------------------
 else
