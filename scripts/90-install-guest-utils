@@ -56,9 +56,9 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
    # ------ Prevent suspend/hibernation -------------------------------------
    if [ "${HYPERVISOR}" != "" ] ; then
       if [ -e /etc/systemd/sleep.conf ] ; then
-         sed -e "s/^#AllowSuspend=.*$/AllowSuspend=no/" \
-            -e "s/^#AllowHibernation=.*$/AllowHibernation=no/" \
-            -i /etc/systemd/sleep.conf
+         sed -e "s/^#\?AllowSuspend=.*$/AllowSuspend=no/" \
+             -e "s/^#\?AllowHibernation=.*$/AllowHibernation=no/" \
+             -i /etc/systemd/sleep.conf
       fi
    fi
 
@@ -71,7 +71,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
          #        => needs to be added manually:
          architecture="$(dpkg --print-architecture)"
          cd /tmp
-         wget -4rq --no-parent --accept-regex 'virtualbox-guest-.*deb$' https://ftp.debian.org/debian/pool/contrib/v/virtualbox/
+         wget -rq --no-parent --accept-regex 'virtualbox-guest-.*deb$' https://ftp.debian.org/debian/pool/contrib/v/virtualbox/
          pkg1="$(find /tmp/ftp.debian.org/debian/pool/contrib/v/virtualbox/ -name "virtualbox-guest-utils_*_${architecture}.deb")"
          if [ ! -e /usr/lib/systemd/system/sddm.service ] ; then
             packages="${pkg1}"
@@ -118,7 +118,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
    fi
 
    # ------ Not in QEMU -> remove open-vm-tools -----------------------------
-   if [ ! "${HYPERVISOR}" == "vmware" ] ; then
+   if [ "${HYPERVISOR}" != "vmware" ] ; then
       apt-get autoremove -y --purge open-vm-tools || true
    fi
 
