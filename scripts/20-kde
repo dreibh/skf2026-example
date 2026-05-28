@@ -196,6 +196,7 @@ elif [ "${ID}" == "freebsd" ] ; then
       fractgen
       gimp3-app
       inkscape
+      kate
       kile
       konsole
       gstreamer1-plugins-soup
