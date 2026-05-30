@@ -89,7 +89,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 
       # ------ Determinate whether the system has a GUI ---------------------
       isDesktop=0
-      if [[ "$(systemctl get-default)" == "graphical.target" ]] ; then
+      if systemctl is-enabled -q sddm.service ; then
          isDesktop=1
       fi
 
@@ -143,7 +143,7 @@ elif [ "${ID}" == "fedora" ] ; then
 
    # ------ Determinate whether the system has a GUI ------------------------
    isDesktop=0
-   if [[ "$(systemctl get-default)" == "graphical.target" ]] ; then
+   if systemctl is-enabled -q sddm.service ; then
       isDesktop=1
    fi
 
