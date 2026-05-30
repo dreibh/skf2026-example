@@ -178,6 +178,7 @@ EOF
    packages="
       acl
       apt-file
+      binutils
       bridge-utils
       bwm-ng
       bzip2
