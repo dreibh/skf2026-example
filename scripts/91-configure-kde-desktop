@@ -882,14 +882,25 @@ MinimumUid=1000
 EOF
 
 
-sddmThemeConfig="${usrPrefix}/share/sddm/themes/breeze/theme.conf.user"
-mkdir -p "$(dirname "${sddmThemeConfig}")"
+if [ -d ${usrPrefix}/share/sddm ] ; then
+   sddmThemeConfig="${usrPrefix}/share/sddm/themes/breeze/theme.conf.user"
+   mkdir -p "$(dirname "${sddmThemeConfig}")"
 
-cat >${sddmThemeConfig} <<EOF
+   cat >${sddmThemeConfig} <<EOF
 [General]
 background=${BACKGROUND_SDDM}
 type=image
 EOF
+
+else
+
+   # Fedora uses Plasma Login:
+   cat >/etc/plasmalogin.conf <<EOF
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file://${BACKGROUND_SDDM}
+EOF
+
+fi
 
 
 # ====== Fix permissions ====================================================

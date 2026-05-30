@@ -175,16 +175,10 @@ elif [ "${ID}" == "fedora" ] ; then
 
    # shellcheck disable=SC2086
    dnf install --setopt=install_weak_deps=False -y --allowerasing ${packages}
+   dnf remove -y elisa-player
 
-   # FIXME!
-   # 2024/03: Wayland is still completely unusable in VirtualBox!
-   # SDDM on Wayland just produces a black screen -> use X11 instead!
-   dnf install --setopt=install_weak_deps=False -y --allowerasing sddm-x11
-
-   systemctl enable sddm.service || true
-   systemctl start sddm.service  || true
    systemctl set-default graphical.target
-
+   systemctl disable plasma-setup.service
 
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
