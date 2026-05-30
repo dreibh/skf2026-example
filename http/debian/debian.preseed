@@ -29,7 +29,7 @@ d-i debian-installer/country            string NO
 d-i debian-installer/language           string en_IE:en
 d-i debian-installer/locale             string en_IE.UTF-8
 
-# !!! These lines have no effect -> bug #1553147 !!!
+# These lines are necessary to fill variables, but are not actually applied!
 # Need to set keyboard layout by late_command ...
 d-i console-setup/ask_detect            boolean false
 d-i keyboard-configuration/modelcode    string pc105
@@ -40,6 +40,7 @@ d-i keyboard-configuration/optionscode  string ""
 
 
 # ====== Network ============================================================
+tasksel tasksel/first                   multiselect standard, ssh-server
 d-i netcfg/choose_interface             select auto
 d-i netcfg/disable_autoconfig           boolean false
 d-i netcfg/disable_dhcp                 boolean false
@@ -56,7 +57,7 @@ d-i netcfg/get_domain                   string <SET_DOMAINNAME_HERE>
 # ====== Time ===============================================================
 d-i clock-setup/utc                     boolean true
 d-i clock-setup/ntp                     boolean true
-d-i clock-setup/ntp-server              string ntp.ubuntu.com
+d-i clock-setup/ntp-server              string pool.ntp.org
 d-i time/zone                           string Europe/Oslo
 
 # ====== User ===============================================================
@@ -124,10 +125,11 @@ d-i grub-installer/with_other_os                    boolean true
 # ====== Packages ===========================================================
 # Repositories:
 popularity-contest popularity-contest/participate   boolean true   # !!! May be disabled! !!!
+d-i apt-setup/contrib                               boolean true
 d-i apt-setup/universe                              boolean true
-d-i apt-setup/universe/source                       boolean true
 d-i apt-setup/multiverse                            boolean true
-d-i apt-setup/multiverse/source                     boolean true
+d-i apt-setup/non-free                              boolean true
+d-i apt-setup/non-free-firmware                     boolean true
 
 # Package settings:
 d-i pkgsel/language-packs                           multiselect en
@@ -142,7 +144,7 @@ d-i pkgsel/include                                  string acpid bash-completion
 # The following tasks are performed:
 # * Handle 3-disk layout (separate disks for root, home, swap)
 # * Rewrite /etc/network/interfaces (usage of ifupdown instead of netplan)
-# * Set the keyboard layout (buggy installer does not set it!)
+# * Set the keyboard layout (the installer does not set it!)
 d-i preseed/late_command                            string \
  in-target /usr/bin/apt-get update ; \
  in-target /sbin/sgdisk --change-name=1:EFI --change-name=2:Root <SET_ROOT_DISK_DEVICE_HERE> ; \
@@ -173,7 +175,6 @@ d-i preseed/late_command                            string \
  in-target /bin/sed -i "s/XKBVARIANT=\"[a-z]*\"/XKBVARIANT=\"nodeadkeys\"/g" /etc/default/keyboard ; \
  in-target /bin/sed -i "s/XKBOPTIONS=\"[a-z]*\"/XKBOPTIONS=\"\"/g" /etc/default/keyboard ; \
  in-target /usr/sbin/dpkg-reconfigure -fnoninteractive keyboard-configuration ; \
- in-target /usr/sbin/update-grub ; \
  in-target true # <SET_POSTINSTALL_COMMANDS_HERE>
 
 # ====== Power Off after installation =======================================
