@@ -45,11 +45,13 @@ set -x
 
 # ====== Make sure the background images are there ==========================
 if [ ! -v USER_NAME             ] || [ "${USER_NAME}"             == "" ] ||
+   [ ! -v KEYBOARD_MODEL        ] || [ "${KEYBOARD_MODEL}"        == "" ] ||
+   [ ! -v KEYBOARD_LAYOUTS      ] || [ "${KEYBOARD_LAYOUTS}"      == "" ] ||
    [ ! -v BACKGROUND_SDDM       ] || [ "${BACKGROUND_SDDM}"       == "" ] ||
    [ ! -v BACKGROUND_LOCKSCREEN ] || [ "${BACKGROUND_LOCKSCREEN}" == "" ] ||
    [ ! -v BACKGROUND_DESKTOP    ] || [ "${BACKGROUND_DESKTOP}"    == "" ] ; then
    echo >&2 "ERROR: Usage: env USER_NAME=<user> BACKGROUND_SDDM=<image> BACKGROUND_LOCKSCREEN=<image> BACKGROUND_DESKTOP=<image> $0"
-   echo >&2 "Example: sudo env USER_NAME=nornetpp BACKGROUND_SDDM=/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg BACKGROUND_LOCKSCREEN=/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg BACKGROUND_DESKTOP=/usr/share/desktop/Flåm-3840x2160-plain.jpeg $0"
+   echo >&2 "Example: sudo env USER_NAME=nornetpp KEYBOARD_MODEL=pc105 KEYBOARD_LAYOUTS=\"de:nodeadkeys no us\" BACKGROUND_SDDM=/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg BACKGROUND_LOCKSCREEN=/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg BACKGROUND_DESKTOP=/usr/share/desktop/Flåm-3840x2160-plain.jpeg $0"
    exit 1
 fi
 USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${USER_NAME}" '$1==user { print $6 }' /etc/passwd)"
@@ -59,17 +61,17 @@ USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${US
 if [ ! -e "${BACKGROUND_SDDM}" ] ; then
    dir="$(dirname "${BACKGROUND_SDDM}")"
    sudo mkdir -p "${dir}/"
-   sudo mv "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_SDDM}")" "${dir}/"
+   sudo cp "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_SDDM}")" "${dir}/"
 fi
 if [ ! -e "${BACKGROUND_LOCKSCREEN}" ] ; then
    dir="$(dirname "${BACKGROUND_LOCKSCREEN}")"
    sudo mkdir -p "${dir}/"
-   sudo mv "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_LOCKSCREEN}")" "${dir}/"
+   sudo cp "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_LOCKSCREEN}")" "${dir}/"
 fi
 if [ ! -e "${BACKGROUND_DESKTOP}" ] ; then
    dir="$(dirname "${BACKGROUND_DESKTOP}")"
    sudo mkdir -p "${dir}/"
-   sudo mv "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_DESKTOP}")" "${dir}/"
+   sudo cp "/tmp/desktop-backgrounds/$(basename "${BACKGROUND_DESKTOP}")" "${dir}/"
 fi
 
 
@@ -539,12 +541,34 @@ EOF
 
 
 # ====== Keyboard configuration =============================================
+kxkbrcLayouts=""
+kxkbrcVariants=""
+for layout in ${KEYBOARD_LAYOUTS} ; do
+   if [[ "${layout}" =~ ^([^:]+):([^:]*)$ ]] ; then
+      currentLayoutName="${BASH_REMATCH[1]}"
+      currentVariantName="${BASH_REMATCH[2]}"
+   elif [[ "${layout}" =~ ^([^:]+)$ ]] ; then
+      currentLayoutName="${BASH_REMATCH[1]}"
+      currentVariantName=""
+   else
+      echo >&2 "ERROR: Invalid keyboard layout ${layout}!"
+      exit 1
+   fi
+   if [ -z "${kxkbrcLayouts}" ] ; then
+      kxkbrcLayouts="${currentLayoutName}"
+      kxkbrcVariants="${currentVariantName}"
+   else
+      kxkbrcLayouts="${kxkbrcLayouts},${currentLayoutName}"
+      kxkbrcVariants="${kxkbrcVariants},${currentVariantName}"
+   fi
+done
+
 cat >"${USER_HOME}/.config/kxkbrc" <<EOF
 [Layout]
 DisplayNames=,,
-LayoutList=de,no,us
+LayoutList=${kxkbrcLayouts}
 LayoutLoopCount=-1
-Model=pc105
+Model=${KEYBOARD_MODEL}
 ResetOldOptions=false
 ShowFlag=true
 ShowLabel=false
@@ -552,7 +576,7 @@ ShowLayoutIndicator=true
 ShowSingle=false
 SwitchMode=Global
 Use=true
-VariantList=nodeadkeys,,
+VariantList=${kxkbrcVariants}
 EOF
 
 
