@@ -432,8 +432,8 @@ else
    echo >&2 "ERROR: Invalid hypervisor ${HYPERVISOR}!"
    exit 1
 fi
-LOCALES="$(echo "${LOCALES}" | sort | xargs)"
-KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | xargs)"
+LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
+KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
 
 pushd projects
 projectConfiguration="${PROJECT}.config"
