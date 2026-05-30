@@ -125,8 +125,9 @@ echo 'sctp_load="YES"' >>/boot/loader.conf
 
 # ====== UTF-8 ==============================================================
 
-# Enable UTF-8:
-sed -e $'s#default:\\\\#default:\\\\\\\n\\\t:charset=UTF-8:\\\\\\\n\\\t:lang=C.UTF-8:\\\\#g' </etc/login.conf >/etc/login.conf.new
+# FreeBSD now uses UTF-8 by default.
+# Remove "lang=C.UTF-8", to apply the user's setting:
+sed -e $'s#:lang=C.UTF-8:#::#g' </etc/login.conf >/etc/login.conf.new
 mv /etc/login.conf.new /etc/login.conf
 cap_mkdb /etc/login.conf
 
@@ -147,7 +148,7 @@ Quarterly: {
   mirror_type: "srv",
   signature_type: "fingerprints",
   fingerprints: "/usr/share/keys/pkg",
-  enabled: yes
+  enabled: no
 }
 
 # Define "Latest" repository with the latest updates:
@@ -156,7 +157,7 @@ Latest: {
   mirror_type: "srv",
   signature_type: "fingerprints",
   fingerprints: "/usr/share/keys/pkg",
-  enabled: no
+  enabled: yes
 }
 EOF
 
