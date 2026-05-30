@@ -104,7 +104,7 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
                languageSupportMap["${currentLanguage}"]="${currentTask}"
             done
          fi
-      done < /usr/share/tasksel/descs/debian-tasks.desc
+      done </usr/share/tasksel/descs/debian-tasks.desc
 
       # ------ Generate list of packages to be installed --------------------
       for locale in ${LOCALES} ; do
@@ -112,9 +112,16 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
          if [[ -v languageSupportMap["${languageCode}"] ]] ; then
             taskName="${languageSupportMap[${languageCode}]}"
             if [ -n "${taskName}" ]; then
-               packages="${packages} task-${taskName}"
+               if apt-cache show "task-${taskName}" >/dev/null 2>&1 ; then
+                  packages="${packages} task-${taskName}"
+               fi
                if [ ${isDesktop} -ne 0 ] ; then
-                  packages="${packages} task-${taskName}-desktop"
+                  if apt-cache show "task-${taskName}-desktop" >/dev/null 2>&1 ; then
+                     packages="${packages} task-${taskName}-desktop"
+                  fi
+                  if apt-cache show "task-${taskName}-kde-desktop" >/dev/null 2>&1 ; then
+                     packages="${packages} task-${taskName}-kde-desktop"
+                  fi
                fi
             fi
          else
