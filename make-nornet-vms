@@ -22,6 +22,7 @@ set -euo pipefail
 
 . ./vm-build-helper
 . ./supported-systems.config
+. ./regional-settings.config
 
 HYPERVISOR="VirtualBox"
 SYSTEMS="${DEFAULT_SYSTEMS_CURRENT}"

@@ -22,6 +22,7 @@ set -euo pipefail
 
 . ./vm-build-helper
 . ./supported-systems.config
+. ./regional-settings.config
 
 HYPERVISOR="Docker"
 ARCHITECTURES="amd64 arm64v8 riscv64 ppc64le s390x"   # amd64 arm64v8 riscv64 ppc64le s390x   arm32v7 arm32v5 i386

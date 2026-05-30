@@ -22,6 +22,7 @@ set -euo pipefail
 
 . ./vm-build-helper
 . ./supported-systems.config
+. ./regional-settings.config
 
 HYPERVISOR="QEMU"   # "VirtualBox" "QEMU"
 SYSTEMS="${DEFAULT_LINUX_UBUNTU_SYSTEMS_CURRENT}"
