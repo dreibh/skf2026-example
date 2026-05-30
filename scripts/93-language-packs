@@ -136,6 +136,9 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
    fi
 
+   # Apply the user's setting, instead of using the installation default:
+   rm -f /etc/default/locale
+
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
 

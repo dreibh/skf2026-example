@@ -78,11 +78,13 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 
    # Locales:
    for locale in ${LOCALES} ; do
-      locale-gen --keep-existing "${locale}.UTF-8"
+      if grep -q -E "^#[[:blank:]]*${locale}\.UTF-8" /etc/locale.gen; then
+         sed -i -E "s/^#[[:blank:]]*(${locale}\.UTF-8[[:blank:]]+UTF-8)/\1/" /etc/locale.gen
+      elif ! grep -q "^${locale}\.UTF-8" /etc/locale.gen; then
+         echo "${locale}.UTF-8 UTF-8" >>/etc/locale.gen
+      fi
    done
-
-   # Apply the user's setting, instead of using the installation default:
-   rm -f /etc/default/locale
+   locale-gen
 
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
@@ -117,3 +119,14 @@ fi
 # ====== Show available locales =============================================
 echo "Available locales:"
 locale -a
+
+missingLocales=()
+for locale in ${LOCALES} ; do
+   if ! locale -a | grep -iq "^${locale}" ; then
+      missingLocales+=("${locale}")
+   fi
+done
+if [ ${#missingLocales[@]} -ne 0 ] ; then
+   echo >&2 "ERROR: Some locales are missing: ${missingLocales[*]}!"
+   exit 1
+fi
