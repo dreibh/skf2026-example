@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
+# ==========================================================================
+#  ___         _        _ _      _   _            ___         _      _
+# |_ _|_ _  __| |_ __ _| | |__ _| |_(_)___ _ _   / __| __ _ _(_)_ __| |_ ___
+#  | || ' \(_-<  _/ _` | | / _` |  _| / _ \ ' \  \__ \/ _| '_| | '_ \  _(_-<
+# |___|_||_/__/\__\__,_|_|_\__,_|\__|_\___/_||_| |___/\__|_| |_| .__/\__/__/
+#                                                              |_|
 #
-# Autoinstall Scripts
+#   --- Virtual Machine Image Builder and System Installation Scripts ---
+#            https://www.nntb.no/~dreibh/vmimage-builder-scripts/
+# ==========================================================================
+#
+# System Installation Scripts
 # Copyright (C) 2017-2026 by Thomas Dreibholz
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,8 +29,10 @@
 # Contact: thomas.dreibholz@gmail.com
 
 # Bash options:
-set -ex
+set -euxo pipefail
 
+
+# ###### Main program #######################################################
 
 # ====== Check/set environment variables ====================================
 if [ ! -e /etc/os-release ] ; then
@@ -64,20 +76,6 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 else
    # Fedora: group is "wheel"
    usermod -aG wheel "${USER_NAME}"
-fi
-
-
-# ====== Create locales and time zone data ==================================
-
-# ------ Ubuntu/Debian ------------------------------------------------------
-if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
-   env DEBIAN_FRONTEND=noninteractive apt-get install -y locales tzdata
-   locale-gen ar_SA.UTF-8 bs_BA.UTF-8 da_DK.UTF-8 de_AT.UTF-8 de_CH.UTF-8 de_DE.UTF-8 en_AU.UTF-8 en_DK.UTF-8 en_GB.UTF-8 en_IE.UTF-8 en_US.UTF-8 en_ZA.UTF-8 nb_NO.UTF-8 nn_NO.UTF-8 ro_RO.UTF-8 sk_SK.UTF-8 zh_CN.UTF-8
-
-# ------ Fedora -------------------------------------------------------------
-elif [ "${ID}" == "fedora" ] ; then
-   dnf install --setopt=install_weak_deps=False -y glibc-locale-source
-   localedef -v -c -i en_US -f UTF-8 en_US.UTF-8 || true
 fi
 
 

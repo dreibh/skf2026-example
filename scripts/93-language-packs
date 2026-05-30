@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
+# ==========================================================================
+#  ___         _        _ _      _   _            ___         _      _
+# |_ _|_ _  __| |_ __ _| | |__ _| |_(_)___ _ _   / __| __ _ _(_)_ __| |_ ___
+#  | || ' \(_-<  _/ _` | | / _` |  _| / _ \ ' \  \__ \/ _| '_| | '_ \  _(_-<
+# |___|_||_/__/\__\__,_|_|_\__,_|\__|_\___/_||_| |___/\__|_| |_| .__/\__/__/
+#                                                              |_|
 #
-# Autoinstall Scripts
+#   --- Virtual Machine Image Builder and System Installation Scripts ---
+#            https://www.nntb.no/~dreibh/vmimage-builder-scripts/
+# ==========================================================================
+#
+# System Installation Scripts
 # Copyright (C) 2017-2026 by Thomas Dreibholz
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,8 +46,9 @@ set -euo pipefail
 # ###########################################################################
 
 
-# ====== Print script name, to make Packer output easier readable ===========
+# ###### Print script name, to make Packer output easier readable ###########
 if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   echo
    LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;31m█" "▀" "█\e[0m"
    figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;31m█\e[22m" "\e[1;31m█\e[0m"
    LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;31m█" "▄" "█\e[0m"
@@ -48,6 +59,8 @@ fi
 # Enable printing the command-lines executed:
 set -x
 
+
+# ###### Main program #######################################################
 
 # ====== Check/set environment variables ====================================
 if [ ! -v LOCALES ] || [ "${LOCALES}" == "" ] ; then
