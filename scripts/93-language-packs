@@ -76,7 +76,8 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
          language-selector-common
 
-      for locale in $LOCALES ; do
+      # ------ Generate list of packages to be installed --------------------
+      for locale in ${LOCALES} ; do
          language="${locale%%_*}"
          packages="${packages} $(check-language-support -l "${language}")"
       done
@@ -86,11 +87,13 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
          tasksel-data
 
+      # ------ Determinate whether the system has a GUI ---------------------
       isDesktop=0
       if [[ "$(systemctl get-default)" == "graphical.target" ]] ; then
          isDesktop=1
       fi
 
+      # ------ Read the Debian language support information into an array ---
       declare -A languageSupportMap
       while read -r line; do
          if [[ $line =~ ^Task:\ (.*) ]] ; then
@@ -103,9 +106,9 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
          fi
       done < /usr/share/tasksel/descs/debian-tasks.desc
 
-      for locale in $LOCALES ; do
+      # ------ Generate list of packages to be installed --------------------
+      for locale in ${LOCALES} ; do
          languageCode="${locale%%_*}"
-         echo "${languageCode}"
          if [[ -v languageSupportMap["${languageCode}"] ]] ; then
             taskName="${languageSupportMap[${languageCode}]}"
             if [ -n "${taskName}" ]; then
@@ -115,11 +118,12 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
                fi
             fi
          else
-            echo >&2 "WARNING: Do package for language ${languageCode}!"
+            echo >&2 "WARNING: No package for language ${languageCode}!"
          fi
       done
    fi
 
+   # ------ Install packages ------------------------------------------------
    if [ -n "${packages}" ] ; then
       # shellcheck disable=SC2086
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
@@ -128,19 +132,33 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
 
-   # FIXME! TBD!
-   true
+   packages=""
 
-   packages="
-   "
+   # ------ Determinate whether the system has a GUI ------------------------
+   isDesktop=0
+   if [[ "$(systemctl get-default)" == "graphical.target" ]] ; then
+      isDesktop=1
+   fi
 
-   # shellcheck disable=SC2086
-   dnf install --setopt=install_weak_deps=False -y ${packages}
+   # ------ Generate list of packages to be installed -----------------------
+   for locale in ${LOCALES} ; do
+      languageCode="${locale%%_*}"
+      packages="${packages} glibc-langpack-${languageCode}"
+      if [ ${isDesktop} -ne 0 ] ; then
+         packages="${packages} langpacks-${languageCode}"
+      fi
+   done
+
+   # ------ Install packages ------------------------------------------------
+   if [ -n "${packages}" ] ; then
+      # shellcheck disable=SC2086
+      dnf install --setopt=install_weak_deps=False -y ${packages}
+   fi
 
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
 
-   # FIXME! TBD!
+   # The language support should already be there!
    true
 
 # ------ Unknown ------------------------------------------------------------
