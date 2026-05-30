@@ -74,10 +74,17 @@ VM_DISK_HOME=131072
 VM_DISK_SWAP=4096
 
 VIDEO="1024x768"
-XKBMODEL="pc105"
-XKBLAYOUT="de"
-XKBVARIANT="nodeadkeys"
-XKBOPTIONS=""
+KEYBOARD_MODEL="pc105"
+KEYBOARD_LAYOUTS="
+   de:nodeadkeys
+   no
+   us
+"
+LOCALES="
+   de_DE
+   en_US
+   nb_NO
+"
 FQDN="akerbrygge.simula.nornet"
 
 USER_NAME="nornetpp"
@@ -262,16 +269,13 @@ while [ $# -gt 0 ] ; do
       fi
       shift
    elif [ "$1" == "--keyboard-model" ] || [ "$1" == "-m" ] ; then
-      XKBMODEL="$2"
+      KEYBOARD_MODEL="$2"
       shift
-   elif [ "$1" == "--keyboard-layout" ] || [ "$1" == "-l" ] ; then
-      XKBLAYOUT="$2"
+   elif [ "$1" == "--keyboard-layouts" ] || [ "$1" == "-l" ] ; then
+      KEYBOARD_LAYOUTS="$2"
       shift
-   elif [ "$1" == "--keyboard-variant" ] || [ "$1" == "-v" ] ; then
-      XKBVARIANT="$2"
-      shift
-   elif [ "$1" == "--keyboard-options" ] || [ "$1" == "-o" ] ; then
-      XKBOPTIONS="$2"
+   elif [ "$1" == "--locales" ] || [ "$1" == "-L" ] ; then
+      LOCALES="$2"
       shift
    elif [ "$1" == "--hostname" ] || [ "$1" == "-h" ] ; then
       FQDN="$2"
@@ -341,9 +345,8 @@ while [ $# -gt 0 ] ; do
       echo >&2 "   [--one-disk-only|-1]"
       echo >&2 "   [--video|-V WIDTHxHEIGHT|XGA|SXGA|HD|HD+|FHD|UHD]"
       echo >&2 "   [--keyboard-model|-m model]"
-      echo >&2 "   [--keyboard-layout|-l layout]"
-      echo >&2 "   [--keyboard-variant|-v variant]"
-      echo >&2 "   [--keyboard-options|-o options]"
+      echo >&2 "   [--keyboard-layouts|-l layout]"
+      echo >&2 "   [--locales|-L locale[,...]"
       echo >&2 "   [--user|-u username]"
       echo >&2 "   [--realname|-r real_user_name]"
       echo >&2 "   [--password|-p password]"
@@ -429,6 +432,8 @@ else
    echo >&2 "ERROR: Invalid hypervisor ${HYPERVISOR}!"
    exit 1
 fi
+LOCALES="$(echo "${LOCALES}" | sort | xargs)"
+KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | xargs)"
 
 pushd projects
 projectConfiguration="${PROJECT}.config"
@@ -563,6 +568,12 @@ if [ ! -d "${HTTP_DIRECTORY}" ] ; then
    exit 1
 fi
 
+# Get the first keyboard layout/variant from the lists as default:
+firstKeyboardLayout="${KEYBOARD_LAYOUTS/ */}"
+xkbLayout="${firstKeyboardLayout/:*/}"
+xkbVariant="${firstKeyboardLayout/*:/}"
+xkbOptions=""
+
 # Copy all files from HTTP directory and replace placeholders:
 mkdir -p "${OUTPUT_DIRECTORY}/${NAME}/http"
 httpFiles=$(find "${HTTP_DIRECTORY}/" -maxdepth 1 -type f -name "*")
@@ -572,10 +583,10 @@ for httpFile in ${httpFiles} ; do
    sed -e "s%<SET_ROOT_DISK_DEVICE_HERE>%${VM_DISK_ROOT_DEVICE}%g" \
        -e "s%<SET_HOME_DISK_DEVICE_HERE>%${VM_DISK_HOME_DEVICE}%g" \
        -e "s%<SET_SWAP_DISK_DEVICE_HERE>%${VM_DISK_SWAP_DEVICE}%g" \
-       -e "s/<SET_XKBMODEL_HERE>/${XKBMODEL}/g" \
-       -e "s/<SET_XKBLAYOUT_HERE>/${XKBLAYOUT}/g" \
-       -e "s/<SET_XKBVARIANT_HERE>/${XKBVARIANT}/g" \
-       -e "s/<SET_XKBOPTIONS_HERE>/${XKBOPTIONS}/g" \
+       -e "s/<SET_XKBMODEL_HERE>/${KEYBOARD_MODEL}/g" \
+       -e "s/<SET_XKBLAYOUT_HERE>/${xkbLayout}/g" \
+       -e "s/<SET_XKBVARIANT_HERE>/${xkbVariant}/g" \
+       -e "s/<SET_XKBOPTIONS_HERE>/${xkbOptions}/g" \
        -e "s/<SET_HOSTFQDN_HERE>/${FQDN}/g" \
        -e "s/<SET_HOSTNAME_HERE>/${HOSTNAME}/g" \
        -e "s/<SET_DOMAINNAME_HERE>/${DOMAINNAME}/g" \
@@ -684,10 +695,8 @@ EOF
          "execute_command": "echo '${USER_PASSWORD}' | sudo -S {{.Vars}} bash '{{.Path}}'",
          "script": "$(realpath scripts/"${provisioner}")",
          "environment_vars": [ "VIDEO=${VIDEO}",
-                               "XKBMODEL=${XKBMODEL}",
-                               "XKBLAYOUT=${XKBLAYOUT}",
-                               "XKBVARIANT=${XKBVARIANT}",
-                               "XKBOPTIONS=${XKBOPTIONS}",
+                               "KEYBOARD_LAYOUTS=${KEYBOARD_LAYOUTS}",
+                               "KEYBOARD_MODEL=${KEYBOARD_MODEL}",
                                "FQDN=${FQDN}",
                                "USER_NAME=${USER_NAME}",
                                "USER_REALNAME=${USER_REALNAME}",
@@ -801,10 +810,8 @@ echo " - BOOTSPLASH=${BOOTSPLASH}"
 echo " - BACKGROUND_SDDM=${BACKGROUND_SDDM}"
 echo " - BACKGROUND_LOCKSCREEN=${BACKGROUND_LOCKSCREEN}"
 echo " - BACKGROUND_DESKTOP=${BACKGROUND_DESKTOP}"
-echo " - XKBMODEL=${XKBMODEL}"
-echo " - XKBLAYOUT=${XKBLAYOUT}"
-echo " - XKBVARIANT=${XKBVARIANT}"
-echo " - XKBOPTIONS=${XKBOPTIONS}"
+echo " - KEYBOARD_MODEL=${KEYBOARD_MODEL}"
+echo " - KEYBOARD_LAYOUTS=${KEYBOARD_LAYOUTS}"
 echo " - FQDN=${FQDN}"
 echo " - HOSTNAME=${HOSTNAME}"
 echo " - DOMAINNAME=${DOMAINNAME}"

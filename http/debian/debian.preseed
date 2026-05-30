@@ -24,12 +24,10 @@ d-i auto-install/enable                 boolean true
 debconf debconf/priority                select critical
 
 # ====== Localization and Keyboard ==========================================
-# Using Irish locale (€, metric units, etc.), but late_command sets British
-# time format (24-hour clock). Also install locales for NO, DE, CN.
+# Using Irish locale (€, metric units, etc.):
 d-i debian-installer/country            string NO
 d-i debian-installer/language           string en_IE:en
 d-i debian-installer/locale             string en_IE.UTF-8
-d-i localechooser/supported-locales     multiselect ar_SA.UTF-8 ar_YE.UTF-8 bs_BA.UTF-8 da_DK.UTF-8 de_AT.UTF-8 de_CH.UTF-8 de_DE.UTF-8 el_GR.UTF-8 en_AU.UTF-8 en_DK.UTF-8 en_GB.UTF-8 en_IE.UTF-8 en_US.UTF-8 es_CO.UTF-8 es_ES.UTF-8 fr_FR.UTF-8 nb_NO.UTF-8 nn_NO.UTF-8 ro_RO.UTF-8 sk_SK.UTF-8 zh_CN.UTF-8
 
 # !!! These lines have no effect -> bug #1553147 !!!
 # Need to set keyboard layout by late_command ...
@@ -132,8 +130,7 @@ d-i apt-setup/multiverse                            boolean true
 d-i apt-setup/multiverse/source                     boolean true
 
 # Package settings:
-tasksel tasksel/first                               multiselect ubuntu-server
-d-i pkgsel/language-packs                           multiselect en, nb, de
+d-i pkgsel/language-packs                           multiselect en
 d-i pkgsel/install-language-support                 boolean true
 d-i pkgsel/update-policy                            select unattended-upgrades
 d-i pkgsel/upgrade                                  select full-upgrade

@@ -36,10 +36,6 @@ set -euo pipefail
 # ###########################################################################
 
 
-# Bash options:
-set -euo pipefail
-
-
 # ====== Print script name, to make Packer output easier readable ===========
 if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
    LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;31m█" "▀" "█\e[0m"

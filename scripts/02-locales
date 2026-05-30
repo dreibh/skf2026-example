@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+#
+# Autoinstall Scripts
+# Copyright (C) 2017-2026 by Thomas Dreibholz
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Contact: thomas.dreibholz@gmail.com
+
+# Bash options:
+set -euo pipefail
+
+
+# ###########################################################################
+# The Minimal installation only contains the default packages of the
+# distribution's installer, as well as tools needed for the initial system
+# installation with these scripts:
+# * [Bash](https://www.gnu.org/software/bash/) (shell)
+# * [cURL](https://curl.se/) (download tool)
+# * [Git](https://git-scm.com/) (revision management)
+# * [GnuPG](https://www.gnupg.org/) (cryptography for signature checks)
+# * [Ping](https://en.wikipedia.org/wiki/Ping_(networking_utility)) (network connectivity check)
+# * [Sudo](https://www.sudo.ws/) (privileged command execution)
+# * [Virt-What](https://people.redhat.com/~rjones/virt-what/) (identification of virtualisation environment)
+# ###########################################################################
+
+
+# ====== Print script name, to make Packer output easier readable ===========
+if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;31m█" "▀" "█\e[0m"
+   figlet -w 156 "$(basename "$0")" | LC_ALL=C.UTF-8 print-utf8 -x 160 -n -C "\e[1;31m█\e[22m" "\e[1;31m█\e[0m"
+   LC_ALL=C.UTF-8 print-utf8 -x 160 -n -s "\e[1;31m█" "▄" "█\e[0m"
+else
+   echo -e "\e[1;31;22m########## $(basename "$0") ##########\e[0m"
+fi
+
+# Enable printing the command-lines executed:
+set -x
+
+
+# ====== Check/set environment variables ====================================
+if [ ! -v LOCALES ] || [ "${LOCALES}" == "" ] ; then
+   echo >&2 "Usage: env LOCALES=\"locales,...\" $0"
+   echo >&2 "Example: sudo env LOCALES=\"de_DE en_IE en_US nb_NO\" $0"
+   exit 1
+fi
+
+if [ ! -e /etc/os-release ] ; then
+   echo >&2 "ERROR: /etc/os-release does not exist!"
+   exit 1
+fi
+. /etc/os-release
+
+
+# ====== Package installation ===============================================
+
+# ------ Ubuntu/Debian ------------------------------------------------------
+if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
+
+   packages="
+      locales
+      tzdata
+   "
+
+   # shellcheck disable=SC2086
+   env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
+
+   # Locales:
+   for locale in ${LOCALES} ; do
+      locale-gen --keep-existing "${locale}.UTF-8"
+   done
+
+# ------ Fedora -------------------------------------------------------------
+elif [ "${ID}" == "fedora" ] ; then
+
+   packages="
+      glibc-locale-source
+   "
+
+   # shellcheck disable=SC2086
+   dnf install --setopt=install_weak_deps=False -y ${packages}
+
+   # Locales:
+   for locale in ${LOCALES} ; do
+      localedef -c -i "${locale}" -f UTF-8 "${locale}.UTF-8"
+   done
+
+# ------ FreeBSD ------------------------------------------------------------
+elif [ "${ID}" == "freebsd" ] ; then
+
+   # All locales should already be there!
+   true
+
+# ------ Unknown ------------------------------------------------------------
+else
+
+   echo >&2 "ERROR: Unknown ID ${ID} in /etc/os-release. The installation script may need an update for supporting this system!"
+   exit 1
+
+fi
+
+
+# ====== Show available locales =============================================
+echo "Available locales:"
+locale -a
