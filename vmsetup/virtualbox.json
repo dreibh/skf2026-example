@@ -70,5 +70,8 @@
     [ "modifyvm", "{{.Name}}", "--vrde", "off" ],
     [ "modifyvm", "{{.Name}}", "--guest-memory-balloon", "{{user `vm_balloon`}}" ],
     [ "setextradata", "global", "GUI/SuppressMessages", "all" ]
+  ],
+  "vboxmanage_post": [
+    // [ "modifyvm", "{{.Name}}", "--nic1", "bridged" ]
   ]
 }
