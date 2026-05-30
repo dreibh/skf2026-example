@@ -1,4 +1,15 @@
-# Ubuntu Preseed Configuration
+# ==========================================================================
+#  ___         _        _ _      _   _            ___         _      _
+# |_ _|_ _  __| |_ __ _| | |__ _| |_(_)___ _ _   / __| __ _ _(_)_ __| |_ ___
+#  | || ' \(_-<  _/ _` | | / _` |  _| / _ \ ' \  \__ \/ _| '_| | '_ \  _(_-<
+# |___|_||_/__/\__\__,_|_|_\__,_|\__|_\___/_||_| |___/\__|_| |_| .__/\__/__/
+#                                                              |_|
+#
+#   --- Virtual Machine Image Builder and System Installation Scripts ---
+#            https://www.nntb.no/~dreibh/vmimage-builder-scripts/
+# ==========================================================================
+#
+# System Installation Scripts
 # Copyright (C) 2017-2026 by Thomas Dreibholz
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,8 +27,7 @@
 #
 # Contact: thomas.dreibholz@gmail.com
 
-# Preseed documentation:
-# https://help.ubuntu.com/lts/installation-guide/example-preseed.txt
+# Ubuntu Preseed Configuration
 
 # ====== Auto-Install =======================================================
 d-i auto-install/enable                 boolean true
@@ -29,7 +39,7 @@ d-i debian-installer/country            string NO
 d-i debian-installer/language           string en_IE:en
 d-i debian-installer/locale             string en_IE.UTF-8
 
-# !!! These lines have no effect -> bug #1553147 !!!
+# These lines are necessary to fill variables, but are not actually applied!
 # Need to set keyboard layout by late_command ...
 d-i console-setup/ask_detect            boolean false
 d-i keyboard-configuration/modelcode    string pc105
@@ -38,16 +48,10 @@ d-i keyboard-configuration/xkb-keymap   select de
 d-i keyboard-configuration/variantcode  string nodeadkeys
 d-i keyboard-configuration/optionscode  string ""
 
-
 # ====== Network ============================================================
 d-i netcfg/choose_interface             select auto
 d-i netcfg/disable_autoconfig           boolean false
 d-i netcfg/disable_dhcp                 boolean false
-
-# d-i netcfg/get_nameservers              string 8.8.8.8 8.8.4.4
-# d-i netcfg/get_ipaddress                string 169.254.100.222
-# d-i netcfg/get_netmask                  string 255.255.255.0
-# d-i netcfg/get_gateway                  string 169.254.100.1
 d-i netcfg/confirm_static               boolean true
 
 d-i netcfg/get_hostname                 string <SET_HOSTNAME_HERE>
@@ -125,12 +129,10 @@ d-i grub-installer/with_other_os                    boolean true
 # Repositories:
 popularity-contest popularity-contest/participate   boolean true   # !!! May be disabled! !!!
 d-i apt-setup/universe                              boolean true
-d-i apt-setup/universe/source                       boolean true
 d-i apt-setup/multiverse                            boolean true
-d-i apt-setup/multiverse/source                     boolean true
 
 # Package settings:
-tasksel tasksel/first                               multiselect ubuntu-server
+tasksel tasksel/first                               multiselect standard, ssh-server
 d-i pkgsel/language-packs                           multiselect en
 d-i pkgsel/install-language-support                 boolean true
 d-i pkgsel/update-policy                            select unattended-upgrades
@@ -143,19 +145,20 @@ d-i pkgsel/include                                  string acpid bash-completion
 # The following tasks are performed:
 # * Old releases: fix package sources to "old-releases.ubuntu.com"
 # * Handle 3-disk layout (separate disks for root, home, swap)
-# * Rewrite /etc/network/interfaces (usage of ifupdown instead of netplan)
-# * Set the keyboard layout (buggy installer does not set it!)
+# * Set the keyboard layout (the installer does not set it!)
 d-i preseed/late_command                            string \
- in-target /bin/bash -c -- 'if [ "`lsb_release -c -s`" = "precise" ] ; then sed -e "s#http://.*archive.ubuntu.com/#http://old-releases.ubuntu.com/#g" -e "s#http://security.ubuntu.com/#http://old-releases.ubuntu.com/#g" -i /etc/apt/sources.list ; fi' ; \
- in-target /usr/bin/apt-get update ; \
+ : "====== Fix package sources ===========================================" ; \
+ in-target /bin/bash -c -- 'if [ "$(lsb_release -c -s)" = "precise" ] ; then sed -e "s#http://.*archive.ubuntu.com/#http://old-releases.ubuntu.com/#g" -e "s#http://security.ubuntu.com/#http://old-releases.ubuntu.com/#g" -i /etc/apt/sources.list ; fi' ; \
+ : "====== Change partition names ========================================" ; \
  in-target /sbin/sgdisk --change-name=1:EFI --change-name=2:Root <SET_ROOT_DISK_DEVICE_HERE> ; \
- in-target /bin/bash -c -- 'if [ -e <SET_HOME_DISK_DEVICE_HERE> ] ; then /sbin/sgdisk --zap-all -g --new 1:0:0 --typecode 1:8300 --change-name=1:Home <SET_HOME_DISK_DEVICE_HERE> ; mkfs.btrfs -L Home <SET_HOME_DISK_DEVICE_HERE>1 ; fi' ; \
- in-target /bin/bash -c -- 'if [ -e <SET_SWAP_DISK_DEVICE_HERE> ] ; then /sbin/sgdisk --zap-all -g --new 1:0:0 --typecode 1:8200 --change-name=1:Swap <SET_SWAP_DISK_DEVICE_HERE> ; mkswap -L Swap <SET_SWAP_DISK_DEVICE_HERE>1 ; fi' ; \
- if [ -e <SET_HOME_DISK_DEVICE_HERE> -a -e <SET_SWAP_DISK_DEVICE_HERE> ] ; then \
+ in-target /bin/bash -c -- 'if [ -e "<SET_HOME_DISK_DEVICE_HERE>" ] ; then /sbin/sgdisk --zap-all -g --new 1:0:0 --typecode 1:8300 --change-name=1:Home <SET_HOME_DISK_DEVICE_HERE> ; mkfs.btrfs -L Home "<SET_HOME_DISK_DEVICE_HERE>1" ; fi' ; \
+ in-target /bin/bash -c -- 'if [ -e "<SET_SWAP_DISK_DEVICE_HERE>" ] ; then /sbin/sgdisk --zap-all -g --new 1:0:0 --typecode 1:8200 --change-name=1:Swap <SET_SWAP_DISK_DEVICE_HERE> ; mkswap -L Swap "<SET_SWAP_DISK_DEVICE_HERE>1" ; fi' ; \
+ : "====== Move files in /home to new subvolume ==========================" ; \
+ if [ -e "<SET_HOME_DISK_DEVICE_HERE>" ] && [ -e "<SET_SWAP_DISK_DEVICE_HERE>" ] ; then \
     mkdir -p /tmp/old && \
     mkdir -p /tmp/new && \
-    mount -t btrfs <SET_ROOT_DISK_DEVICE_HERE>2 /tmp/old && \
-    mount -t btrfs <SET_HOME_DISK_DEVICE_HERE>1 /tmp/new && \
+    mount -t btrfs "<SET_ROOT_DISK_DEVICE_HERE>2" /tmp/old && \
+    mount -t btrfs "<SET_HOME_DISK_DEVICE_HERE>1" /tmp/new && \
     btrfs subvolume create /tmp/new/@home && \
     if [ -e /tmp/old/@home ] ; then \
        btrfs subvolume snapshot /tmp/old/@home /tmp/old/@home_ro && \
@@ -167,17 +170,17 @@ d-i preseed/late_command                            string \
     fi ; \
     umount /tmp/old && \
     umount /tmp/new && \
-    mount -t btrfs -o subvol=@home <SET_HOME_DISK_DEVICE_HERE>1 /target/home ; \
-    in-target /bin/bash -c -- '( cat /etc/fstab | grep -v "/home" | grep -v "/swapfile" ; echo "UUID=`blkid <SET_HOME_DISK_DEVICE_HERE>1 | xargs -n1 | grep "^UUID=" | sed -e "s/UUID=//"` /home           btrfs   defaults,subvol=@home 0       2" ; echo "UUID=`blkid <SET_SWAP_DISK_DEVICE_HERE>1 | xargs -n1 | grep "^UUID=" | sed -e "s/UUID=//"` none            swap    sw              0       0") >/etc/fstab.new' && \
+    mount -t btrfs -o subvol=@home "<SET_HOME_DISK_DEVICE_HERE>1" /target/home ; \
+    in-target /bin/bash -c -- '( cat /etc/fstab | grep -v "/home" | grep -v "/swapfile" ; echo "UUID=$(blkid "<SET_HOME_DISK_DEVICE_HERE>1" | xargs -n1 | grep "^UUID=" | sed -e "s/UUID=//") /home           btrfs   defaults,subvol=@home 0       2" ; echo "UUID=$(blkid "<SET_SWAP_DISK_DEVICE_HERE>1" | xargs -n1 | grep "^UUID=" | sed -e "s/UUID=//") none            swap    sw              0       0") >/etc/fstab.new' && \
     in-target mv /etc/fstab.new /etc/fstab ; \
  fi ; \
- in-target /bin/sed -i "s/XKBMODEL=\"[a-z]*\"/XKBMODEL=\"pc105\"/g" /etc/default/keyboard ; \
+ : "====== Configure keyboard ============================================" ; \
+ in-target /bin/sed -i "s/XKBMODEL=\"[a-z0-9]*\"/XKBMODEL=\"pc105\"/g" /etc/default/keyboard ; \
  in-target /bin/sed -i "s/XKBLAYOUT=\"[a-z]*\"/XKBLAYOUT=\"de\"/g" /etc/default/keyboard ; \
  in-target /bin/sed -i "s/XKBVARIANT=\"[a-z]*\"/XKBVARIANT=\"nodeadkeys\"/g" /etc/default/keyboard ; \
  in-target /bin/sed -i "s/XKBOPTIONS=\"[a-z]*\"/XKBOPTIONS=\"\"/g" /etc/default/keyboard ; \
  in-target /usr/sbin/dpkg-reconfigure -fnoninteractive keyboard-configuration ; \
- in-target /usr/bin/apt-get autoremove -y --purge ubuntu-pro-client landscape-common ; \
- in-target /usr/sbin/update-grub ; \
+ : "====== Further post-install ==========================================" ; \
  in-target true # <SET_POSTINSTALL_COMMANDS_HERE>
 
 # ====== Power Off after installation =======================================
