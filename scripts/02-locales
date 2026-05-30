@@ -81,6 +81,9 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       locale-gen --keep-existing "${locale}.UTF-8"
    done
 
+   # Apply the user's setting, instead of using the installation default:
+   rm -f /etc/default/locale
+
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
 
