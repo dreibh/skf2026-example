@@ -24,7 +24,7 @@ set -euo pipefail
 VIDEO="1024x768"
 # USER_NAME="nornetpp"
 # USER_REALNAME="NorNet Praesum Presum"
-if [ "$(id -u)" -eq 0 ] ; then
+if [ "$(id -u)" -eq 0 ] && [ -v SUDO_USER ] ; then
    # Running as ROOT!
    USER_NAME="${SUDO_USER}"
 else
@@ -133,14 +133,14 @@ pushd >/dev/null files
 if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
    # Note: gcc and libc6-dev are needed by GNUInstallDirs.
    sudo env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get install -y --no-install-recommends \
-      cmake fonts-dejavu fonts-noto gcc gimp graphicsmagick libc6-dev libimage-exiftool-perl make
+      cmake fonts-dejavu fonts-noto gcc gimp git graphicsmagick libc6-dev libimage-exiftool-perl make
 elif [ "${ID}" == "fedora" ] ; then
    sudo /usr/bin/dnf install --setopt=install_weak_deps=False -y \
-      awk cmake dejavu-sans-fonts gcc google-noto-sans-fonts GraphicsMagick gimp perl-Image-ExifTool
+      awk cmake dejavu-sans-fonts gcc git google-noto-sans-fonts GraphicsMagick gimp perl-Image-ExifTool
    sudo fc-cache -f
 elif [ "${ID}" == "freebsd" ] ; then
    sudo /usr/sbin/pkg install -y \
-      cmake dejavu flock getopt gimp3-app noto-sans GraphicsMagick p5-Image-ExifTool
+      cmake dejavu flock getopt gimp3-app git noto-sans GraphicsMagick p5-Image-ExifTool
    sudo fc-cache -f
 fi
 ./generate-backgrounds
