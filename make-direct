@@ -22,6 +22,18 @@ set -euo pipefail
 
 
 VIDEO="1024x768"
+KEYBOARD_MODEL="pc105"
+KEYBOARD_LAYOUTS="
+   de:nodeadkeys
+   no
+   us
+"
+LOCALES="
+   de_DE
+   en_US
+   nb_NO
+"
+
 # USER_NAME="nornetpp"
 # USER_REALNAME="NorNet Praesum Presum"
 if [ "$(id -u)" -eq 0 ] && [ -v SUDO_USER ] ; then
@@ -80,6 +92,15 @@ while [ $# -gt 0 ] ; do
          fi
       fi
       shift
+   elif [ "$1" == "--keyboard-model" ] || [ "$1" == "-m" ] ; then
+      KEYBOARD_MODEL="$2"
+      shift
+   elif [ "$1" == "--keyboard-layouts" ] || [ "$1" == "-l" ] ; then
+      KEYBOARD_LAYOUTS="$2"
+      shift
+   elif [ "$1" == "--locales" ] || [ "$1" == "-L" ] ; then
+      LOCALES="$2"
+      shift
    elif [ "$1" == "--username" ] || [ "$1" == "-u" ] ; then
       USER_NAME="$2"
       shift
@@ -110,6 +131,9 @@ while [ $# -gt 0 ] ; do
    fi
    shift
 done
+
+LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
+KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
 
 
 # ###### Get provisioners ###################################################
@@ -181,6 +205,9 @@ for provisioner in ${PROVISIONERS} ; do
       VIDEO="${VIDEO}" \
       USER_NAME="${USER_NAME}" \
       USER_REALNAME="${USER_REALNAME}" \
+      KEYBOARD_MODEL="${KEYBOARD_MODEL}" \
+      KEYBOARD_LAYOUTS="${KEYBOARD_LAYOUTS}" \
+      LOCALES="${LOCALES}"  \
       BOOTSPLASH="${BOOTSPLASH}" \
       BACKGROUND_SDDM="${BACKGROUND_SDDM}" \
       BACKGROUND_LOCKSCREEN="${BACKGROUND_LOCKSCREEN}" \
