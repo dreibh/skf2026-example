@@ -86,11 +86,16 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
       env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
          tasksel-data
 
+      isDesktop=0
+      if [[ "$(systemctl get-default)" == "graphical.target" ]] ; then
+         isDesktop=1
+      fi
+
       declare -A languageSupportMap
       while read -r line; do
-         if [[ $line =~ ^Task:\ (.*) ]]; then
+         if [[ $line =~ ^Task:\ (.*) ]] ; then
             currentTask="${BASH_REMATCH[1]}"
-         elif [[ $line =~ ^Test-lang:\ (.*) ]]; then
+         elif [[ $line =~ ^Test-lang:\ (.*) ]] ; then
             currentLanguages="${BASH_REMATCH[1]}"
             for currentLanguage in  ${currentLanguages} ; do
                languageSupportMap["${currentLanguage}"]="${currentTask}"
@@ -105,6 +110,9 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
             taskName="${languageSupportMap[${languageCode}]}"
             if [ -n "${taskName}" ]; then
                packages="${packages} task-${taskName}"
+               if [ ${isDesktop} -ne 0 ] ; then
+                  packages="${packages} task-${taskName}-desktop"
+               fi
             fi
          else
             echo >&2 "WARNING: Do package for language ${languageCode}!"
@@ -120,22 +128,19 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 # ------ Fedora -------------------------------------------------------------
 elif [ "${ID}" == "fedora" ] ; then
 
+   # FIXME! TBD!
+   true
+
    packages="
-      glibc-locale-source
    "
 
    # shellcheck disable=SC2086
    dnf install --setopt=install_weak_deps=False -y ${packages}
 
-   # Locales:
-   for locale in ${LOCALES} ; do
-      localedef -c -i "${locale}" -f UTF-8 "${locale}.UTF-8"
-   done
-
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
 
-   # All locales should already be there!
+   # FIXME! TBD!
    true
 
 # ------ Unknown ------------------------------------------------------------
