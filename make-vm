@@ -697,6 +697,7 @@ EOF
          "environment_vars": [ "VIDEO=${VIDEO}",
                                "KEYBOARD_LAYOUTS=${KEYBOARD_LAYOUTS}",
                                "KEYBOARD_MODEL=${KEYBOARD_MODEL}",
+                               "LOCALES=${LOCALES}",
                                "FQDN=${FQDN}",
                                "USER_NAME=${USER_NAME}",
                                "USER_REALNAME=${USER_REALNAME}",
@@ -812,6 +813,7 @@ echo " - BACKGROUND_LOCKSCREEN=${BACKGROUND_LOCKSCREEN}"
 echo " - BACKGROUND_DESKTOP=${BACKGROUND_DESKTOP}"
 echo " - KEYBOARD_MODEL=${KEYBOARD_MODEL}"
 echo " - KEYBOARD_LAYOUTS=${KEYBOARD_LAYOUTS}"
+echo " - LOCALES=${LOCALES}"
 echo " - FQDN=${FQDN}"
 echo " - HOSTNAME=${HOSTNAME}"
 echo " - DOMAINNAME=${DOMAINNAME}"
