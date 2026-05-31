@@ -412,7 +412,7 @@ Features:
 
 ### 5gVINNI
 
-Basic for general-purpose desktop usage, particularly for working with [5gVINNI](https://www.5g-vinni.eu/). They are based on the NorNet images.
+Basic for general-purpose desktop usage, particularly for working with [5gVINNI](https://www.eurescom.eu/archive/5G-VINNI/). They are based on the NorNet images.
 
 
 # 🔗 Useful Links
