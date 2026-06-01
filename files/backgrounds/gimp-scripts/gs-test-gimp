@@ -42,7 +42,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-test-gimp @BUILD_MAJOR@.@BUILD_MINOR@.@BUILD_PATCH@"
+   echo "gs-test-gimp 2.7.1"
    exit 0
 }
 

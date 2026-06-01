@@ -42,7 +42,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-resize-with-cropping @BUILD_MAJOR@.@BUILD_MINOR@.@BUILD_PATCH@"
+   echo "gs-resize-with-cropping 2.7.1"
    exit 0
 }
 

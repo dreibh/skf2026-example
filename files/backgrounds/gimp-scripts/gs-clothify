@@ -42,7 +42,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-clothify @BUILD_MAJOR@.@BUILD_MINOR@.@BUILD_PATCH@"
+   echo "gs-clothify 2.7.1"
    exit 0
 }
 
@@ -175,7 +175,7 @@ else
 fi
 
 # This script does not use fonts, or gradients/palettes/brushes:
-GIMP_OPTIONS="${GIMP_OPTIONS} --no-fonts --no-data"
+GIMP_OPTIONS="${GIMP_OPTIONS} --no-fonts"
 
 
 # ====== Call GIMP ==========================================================
