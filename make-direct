@@ -32,8 +32,6 @@
 set -euo pipefail
 
 
-# USER_NAME="nornetpp"
-# USER_REALNAME="NorNet Praesum Presum"
 if [ "$(id -u)" -eq 0 ] && [ -v SUDO_USER ] ; then
    # Running as ROOT!
    USER_NAME="${SUDO_USER}"
