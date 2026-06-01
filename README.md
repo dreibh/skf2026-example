@@ -89,26 +89,26 @@ The following installations of dependencies are necessary:
     packer plugins installed
     ```
 
-* [CMake](https://cmake.org/), [ExifTool](https://exiftool.org/), [Gimp](https://www.gimp.org/), [GraphicsMagick](http://www.graphicsmagick.org/), [Noto Fonts](https://fonts.google.com/noto), [DejaVu Fonts](https://dejavu-fonts.github.io/), for building the boot-splash and desktop/screen locker/login background images:
+* [CMake](https://cmake.org/), [ExifTool](https://exiftool.org/), [Gimp](https://www.gimp.org/), [GraphicsMagick](http://www.graphicsmagick.org/), [Open Sans Fonts](https://fonts.google.com/specimen/Open+Sans), for building the boot-splash and desktop/screen locker/login background images:
 
   - Ubuntu/Debian:
 
      ```
      sudo apt-get install -y --no-install-recommends \
-        cmake fonts-dejavu fonts-noto gimp graphicsmagick libimage-exiftool-perl
+        cmake fonts-open-sans gcc gimp git graphicsmagick libc6-dev libimage-exiftool-perl make
      ```
 
   - Fedora:
 
      ```
      sudo dnf install --setopt=install_weak_deps=False -y \
-        awk cmake dejavu-sans-fonts gcc google-noto-sans-fonts GraphicsMagick gimp perl-Image-ExifTool
+        awk cmake gcc git GraphicsMagick gimp open-sans-fonts perl perl-Image-ExifTool
      ```
   - FreeBSD:
 
     ```
     sudo pkg install -y \
-       cmake dejavu gimp3-app noto-sans GraphicsMagick p5-Image-ExifTool
+       cmake flock getopt gimp3-app git GraphicsMagick opensans-ttf p5-Image-ExifTool
     ```
 
 
