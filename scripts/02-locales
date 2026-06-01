@@ -32,20 +32,6 @@
 set -euo pipefail
 
 
-# ###########################################################################
-# The Minimal installation only contains the default packages of the
-# distribution's installer, as well as tools needed for the initial system
-# installation with these scripts:
-# * [Bash](https://www.gnu.org/software/bash/) (shell)
-# * [cURL](https://curl.se/) (download tool)
-# * [Git](https://git-scm.com/) (revision management)
-# * [GnuPG](https://www.gnupg.org/) (cryptography for signature checks)
-# * [Ping](https://en.wikipedia.org/wiki/Ping_(networking_utility)) (network connectivity check)
-# * [Sudo](https://www.sudo.ws/) (privileged command execution)
-# * [Virt-What](https://people.redhat.com/~rjones/virt-what/) (identification of virtualisation environment)
-# ###########################################################################
-
-
 # ###### Print script name, to make Packer output easier readable ###########
 if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
    echo
