@@ -33,14 +33,10 @@ set -euo pipefail
 
 
 # ###### Main program #######################################################
-
-# The style is named "Book" on most systems, but "Regular" on Fedora ...
-style="$(fc-list | grep "^/usr/.*share/fonts/.*dejavu.*/DejaVuSans\.ttf" | sed -e "s/^.*style=//" -e "s/,Book//")"
-
-${GS_GLOSSYTEXT} "${OUTPUT}"                       \
-   "Resilient Networks and Applications"           \
-   --font-name              "DejaVu Sans ${style}" \
-   --font-size              256                    \
-   --outline-size           10                     \
-   --blend-gradient-text    "Golden"               \
+${GS_GLOSSYTEXT} "${OUTPUT}"                    \
+   "Resilient Networks and Applications"        \
+   --font-name              "Open Sans Regular" \
+   --font-size              256                 \
+   --outline-size           10                  \
+   --blend-gradient-text    "Golden"            \
    --blend-gradient-outline "Golden"

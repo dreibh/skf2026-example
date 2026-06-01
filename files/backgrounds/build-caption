@@ -33,8 +33,8 @@ set -euo pipefail
 
 
 # ###### Main program #######################################################
-if [ $# -ne 3 ] ; then
-   echo >&2 "Usage: $0 output_file caption width"
+if [ $# -ne 4 ] ; then
+   echo >&2 "Usage: $0 output_file caption_file width"
    exit 1
 fi
 
@@ -52,9 +52,9 @@ if [ "${GS_CAPTION}" = "" ] ; then
 fi
 
 height=$((42*HEIGHT/768))   # Height "42" is designed for 1024x768
-${GS_CAPTION}                                    \
+${GS_CAPTION}                                      \
    "${OUTPUT}" "${WIDTH}" "${height}" "${CAPTION}" \
-   --font-name "Noto Sans Bold"                    \
+   --font-name "Open Sans Bold"                    \
    --font-size 55                                  \
    --foreground "#02266b"                          \
    --background "#ffd700"                          \

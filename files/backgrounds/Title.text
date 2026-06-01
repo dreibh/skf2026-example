@@ -33,10 +33,10 @@ set -euo pipefail
 
 
 # ###### Main program #######################################################
-${GS_GLOSSYTEXT} "${OUTPUT}"                       \
-   "SimulaMet"                                     \
-   --font-name              "DejaVu Sans Bold"     \
-   --font-size              1024                   \
-   --outline-size           30                     \
-   --blend-gradient-text    "Golden"               \
+${GS_GLOSSYTEXT} "${OUTPUT}"                      \
+   "SimulaMet"                                    \
+   --font-name              "Open Sans Extrabold" \
+   --font-size              1024                  \
+   --outline-size           30                    \
+   --blend-gradient-text    "Golden"              \
    --blend-gradient-outline "Golden"

@@ -47,17 +47,19 @@ GM="gm"
 # ------ Proportions --------------------------------------------------------
 titleWidth=0.75      # of Width
 subtitleWidth=0.80   # of Width
+subtitleGap=0.02     # of Height
 nameHeight=0.035     # of Height
 titleBorder=0.50     # of Name Height
 nameBorder=0.35      # of Name Height
 indent=0.055         # of Height
 
-titleWidthValue=$(awk "BEGIN { print ${WIDTH}*${titleWidth} }")
-subtitleWidthValue=$(awk "BEGIN { print ${WIDTH}*${subtitleWidth} }")
-nameHeightValue=$(awk "BEGIN { print ${HEIGHT}*${nameHeight} }")
-titleBorderValue=$(awk "BEGIN { print ${nameHeightValue}*${titleBorder} }")
-nameBorderValue=$(awk "BEGIN { print ${nameHeightValue}*${nameBorder} }")
-indentValue=$(awk "BEGIN { print ${HEIGHT}*${indent} }")
+titleWidthValue=$(awk "BEGIN { printf \"%.0f\", ${WIDTH}*${titleWidth} }")
+subtitleWidthValue=$(awk "BEGIN { printf \"%.0f\", ${WIDTH}*${subtitleWidth} }")
+subtitleGapValue=$(awk "BEGIN { printf \"%.0f\", ${HEIGHT}*${subtitleGap} }")
+nameHeightValue=$(awk "BEGIN { printf \"%.0f\", ${HEIGHT}*${nameHeight} }")
+titleBorderValue=$(awk "BEGIN { printf \"%.0f\", ${nameHeightValue}*${titleBorder} }")
+nameBorderValue=$(awk "BEGIN { printf \"%.0f\", ${nameHeightValue}*${nameBorder} }")
+indentValue=$(awk "BEGIN { printf \"%.0f\", ${HEIGHT}*${indent} }")
 
 
 
@@ -92,8 +94,9 @@ ${GM} composite -size "${subtitleWidthValue}"x"${th}" \
 
 ${GM} convert -background none -append \
    "${tempDirectory}"/title-c.png \
+   -size "1x${subtitleGapValue}" xc:blue \
    "${tempDirectory}"/subtitle.png \
-   +compress "${tempDirectory}"/logo.png
+   -append +compress "${tempDirectory}"/logo.png
 
 
 # ------ Center contact labels ----------------------------------------------
