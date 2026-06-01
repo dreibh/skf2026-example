@@ -1,2 +1,7 @@
+# ---------------------------------------------------------------------------
+# IMPORANT: The destination directories must already exist!
+# These directories should have been created by scripts/01-system-settings.
+# ---------------------------------------------------------------------------
+
 # A playlist with some Internet radio streams:
 23-configure-strawberry.files/Radios.m3u   /tmp/data-files/Radios.m3u

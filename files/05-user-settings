@@ -1,4 +1,10 @@
-# This is /etc/skel/.bashrc of Ubuntu 22.04 LTS:
+# ---------------------------------------------------------------------------
+# IMPORANT: The destination directories must already exist!
+# These directories should have been created by scripts/01-system-settings.
+# ---------------------------------------------------------------------------
+
+# This is /etc/skel/.bashrc of Ubuntu 24.04 LTS, with added
+# /usr/local path lookup for bash completions:
 05-user-settings.files/bashrc                          /tmp/configuration-files/
 
 # User images:
