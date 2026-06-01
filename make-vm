@@ -262,18 +262,6 @@ while [ $# -gt 0 ] ; do
    elif [ "$1" == "--password" ] || [ "$1" == "-p" ] ; then
       USER_PASSWORD="$2"
       shift
-   elif [ "$1" == "--bootsplash" ] || [ "$1" == "-BB" ] ; then
-      BOOTSPLASH="$2"
-      shift
-   elif [ "$1" == "--background-sddm" ] || [ "$1" == "-BS" ] ; then
-      BACKGROUND_SDDM="$2"
-      shift
-   elif [ "$1" == "--background-lockscreen" ] || [ "$1" == "-BL" ] ; then
-      BACKGROUND_LOCKSCREEN="$2"
-      shift
-   elif [ "$1" == "--background-desktop" ] || [ "$1" == "-BD" ] ; then
-      BACKGROUND_DESKTOP="$2"
-      shift
    elif [ "$1" == "--vsphere" ] || [ "$1" == "-VC" ] ; then
       if [ ! -e "$2" ] ; then
          echo "ERROR: vSphere configuration $2 not found!"
@@ -316,17 +304,10 @@ while [ $# -gt 0 ] ; do
       echo >&2 "   [--home|-h MiB]"
       echo >&2 "   [--swap|-s MiB]"
       echo >&2 "   [--one-disk-only|-1]"
-      echo >&2 "   [--video|-V WIDTHxHEIGHT|XGA|SXGA|HD|HD+|FHD|UHD]"
-      echo >&2 "   [--keyboard-model|-m model]"
-      echo >&2 "   [--keyboard-layouts|-l layout]"
-      echo >&2 "   [--locales|-L locale[,...]"
       echo >&2 "   [--user|-u username]"
       echo >&2 "   [--realname|-r real_user_name]"
       echo >&2 "   [--password|-p password]"
       echo >&2 "   [--hostname|-h FQDN"
-      echo >&2 "   [--background-sddm|-BD image_file]"
-      echo >&2 "   [--background-lockscreen|-BL image_file]"
-      echo >&2 "   [--background-desktop|-BD image_file]"
       echo >&2 "   [--packer|-K full_path_to_packer_executable]"
       echo >&2 "   [--dry-run|-n]"
       echo >&2 "   [--verbose|-x]"
