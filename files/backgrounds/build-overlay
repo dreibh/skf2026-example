@@ -62,41 +62,42 @@ nameBorderValue=$(awk "BEGIN { printf \"%.0f\", ${nameHeightValue}*${nameBorder}
 indentValue=$(awk "BEGIN { printf \"%.0f\", ${HEIGHT}*${indent} }")
 
 
-
-tempDirectory=$(mktemp -d simulamet-overlay-"${WIDTH}"x"${HEIGHT}".XXXXXXXXXXXXXXXX)
+tempDirectory=""
+trap 'rm -rf "${tempDirectory}"' EXIT INT TERM HUP
+tempDirectory="$(mktemp -d overlay-"${WIDTH}"x"${HEIGHT}".XXXXXXXXXXXXXXXX)"
 
 # ------ Resize input images ------------------------------------------------
-${GM} convert "$DIRECTORY"/Title.png -trim \
+${GM} convert "${DIRECTORY}/Title.png" -trim \
    -resize "${titleWidthValue}"x \
-   +compress "${tempDirectory}"/title.png
-${GM} convert "$DIRECTORY"/Subtitle.png -trim \
+   +compress "${tempDirectory}/title.png"
+${GM} convert "${DIRECTORY}/Subtitle.png" -trim \
    -resize "${subtitleWidthValue}"x \
    -bordercolor none -border 0x"${titleBorderValue}" \
-   +compress "${tempDirectory}"/subtitle.png
+   +compress "${tempDirectory}/subtitle.png"
 
-${GM} convert "$DIRECTORY"/Name.png -trim \
+${GM} convert "${DIRECTORY}/Name.png" -trim \
    -resize x"${nameHeightValue}" \
-   +compress "${tempDirectory}"/name.png
-${GM} convert "$DIRECTORY"/Affiliation.png -trim \
+   +compress "${tempDirectory}/name.png"
+${GM} convert "${DIRECTORY}/Affiliation.png" -trim \
    -resize x"${nameHeightValue}" \
-   -bordercolor none -border 0x"${nameBorderValue}" \
-   +compress "${tempDirectory}"/affiliation.png
-${GM} convert "$DIRECTORY"/URL.png -trim \
+   -bordercolor none -border "0x${nameBorderValue}" \
+   +compress "${tempDirectory}/affiliation.png"
+${GM} convert "${DIRECTORY}/URL.png" -trim \
    -resize x"${nameHeightValue}" \
-   +compress "${tempDirectory}"/url.png
+   +compress "${tempDirectory}/url.png"
 
 # ------ Center title over subtitle -----------------------------------------
 th=$(gm identify -format "%h" "${tempDirectory}/title.png")
 # Size is ${subtitleWidthValue}x${th}:
 ${GM} composite -size "${subtitleWidthValue}"x"${th}" \
-   -gravity Center "${tempDirectory}"/title.png \
-   xc:none +compress "${tempDirectory}"/title-c.png
+   -gravity Center "${tempDirectory}/title.png" \
+   xc:none +compress "${tempDirectory}/title-c".png
 
 ${GM} convert -background none -append \
-   "${tempDirectory}"/title-c.png \
+   "${tempDirectory}/title-c.png" \
    -size "1x${subtitleGapValue}" xc:blue \
-   "${tempDirectory}"/subtitle.png \
-   -append +compress "${tempDirectory}"/logo.png
+   "${tempDirectory}/subtitle.png" \
+   -append +compress "${tempDirectory}/logo.png"
 
 
 # ------ Center contact labels ----------------------------------------------
@@ -110,26 +111,28 @@ uw=$(gm identify -format "%w" "${tempDirectory}/url.png")
 uh=$(gm identify -format "%h" "${tempDirectory}/url.png")
 
 cw=$(echo "$nw $aw $uw" | xargs -n1 echo | sort -n -r | head -n1)
-${GM} composite -size "${cw}"x"${nh}" -gravity Center "${tempDirectory}"/name.png xc:none +compress "${tempDirectory}"/name-c.png
-${GM} composite -size "${cw}"x"${ah}" -gravity Center "${tempDirectory}"/affiliation.png xc:none +compress "${tempDirectory}"/affiliation-c.png
-${GM} composite -size "${cw}"x"${uh}" -gravity Center "${tempDirectory}"/url.png xc:none +compress "${tempDirectory}"/url-c.png
+${GM} composite -size "${cw}"x"${nh}" -gravity Center "${tempDirectory}/name.png" xc:none +compress "${tempDirectory}/name-c.png"
+${GM} composite -size "${cw}"x"${ah}" -gravity Center "${tempDirectory}/affiliation.png" xc:none +compress "${tempDirectory}/affiliation-c.png"
+${GM} composite -size "${cw}"x"${uh}" -gravity Center "${tempDirectory}/url.png" xc:none +compress "${tempDirectory}/url-c.png"
 
 ${GM} convert -gravity Center -background none -append \
-   "${tempDirectory}"/name-c.png "${tempDirectory}"/affiliation-c.png "${tempDirectory}"/url-c.png \
-   +compress "${tempDirectory}"/contact.png
+   "${tempDirectory}/name-c.png" "${tempDirectory}/affiliation-c.png" "${tempDirectory}/url-c.png" \
+   +compress "${tempDirectory}/contact.png"
 
 
 # ------ Combine everything -------------------------------------------------
-${GM} composite -size "${WIDTH}"x"${HEIGHT}" \
-   -gravity Center "${tempDirectory}"/logo.png \
-   xc:none +compress "${tempDirectory}"/layer-logo.png
-${GM} composite -size "${WIDTH}"x"${HEIGHT}" \
-   -gravity SouthEast -geometry +"${indentValue}"+"${indentValue}" "${tempDirectory}"/contact.png \
-   xc:none +compress "${tempDirectory}"/layer-contact.png
+${GM} composite -size "${WIDTH}x${HEIGHT}" \
+   -gravity Center "${tempDirectory}/logo.png" \
+   xc:none +compress "${tempDirectory}/layer-logo.png"
+${GM} composite -size "${WIDTH}x${HEIGHT}" \
+   -gravity SouthEast -geometry +"${indentValue}+${indentValue}" "${tempDirectory}/contact.png" \
+   xc:none +compress "${tempDirectory}/layer-contact.png"
 
 
+# ------ Add contact block --------------------------------------------------
+# TURNED OFF!
+cp "${tempDirectory}/layer-logo.png" "${OUTPUT}"
 # ${GM} composite ${tempDirectory}/layer-contact.png ${tempDirectory}/layer-logo.png "${OUTPUT}"
-cp "${tempDirectory}"/layer-logo.png "${OUTPUT}"
 
 
 rm -rf "${tempDirectory}"
