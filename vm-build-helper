@@ -138,11 +138,6 @@ build-defined-vms ()
                         --firmware "${FIRMWARE}" \
                         --cores "${CORES}" --memory "${MEMORY}" --balloon "${BALLOON}" \
                         --root "${DISK_ROOT}" --home "${DISK_HOME}" --swap "${DISK_SWAP}" \
-                        --video "${VIDEO}" \
-                        --bootsplash "${BOOTSPLASH}" \
-                        --background-sddm "${BACKGROUND_SDDM}" \
-                        --background-lockscreen "${BACKGROUND_LOCKSCREEN}" \
-                        --background-desktop "${BACKGROUND_DESKTOP}" \
                         --cache-directory "${CACHE_DIRECTORY}" \
                         --output-directory "${OUTPUT_DIRECTORY}" \
                         ${OPTIONS}  >"${logfile}" 2>&1 ; then

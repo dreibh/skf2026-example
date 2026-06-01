@@ -84,28 +84,21 @@ VM_DISK_ROOT=32768
 VM_DISK_HOME=131072
 VM_DISK_SWAP=4096
 
+FQDN="akerbrygge.simula.nornet"
+
+# Defaults, to be overwritten by the actual configuration:
 VIDEO="1024x768"
 KEYBOARD_MODEL="pc105"
-KEYBOARD_LAYOUTS="
-   de:nodeadkeys
-   no
-   us
-"
-LOCALES="
-   de_DE
-   en_US
-   nb_NO
-"
-FQDN="akerbrygge.simula.nornet"
+KEYBOARD_LAYOUTS="de:nodeadkeys no us"
+LOCALES="de_DE en_US nb_NO"
+BOOTSPLASH=""
+BACKGROUND_SDDM=""
+BACKGROUND_LOCKSCREEN=""
+BACKGROUND_DESKTOP=""
 
 USER_NAME="nornetpp"
 USER_REALNAME="NorNet Praesum Presum"
 USER_PASSWORD="!NorNetInst!"
-
-BOOTSPLASH="/usr/share/bootsplash/Bjørnsund-3840x2160.jpeg"
-BACKGROUND_SDDM="/usr/share/desktop/Nordmarka-3840x2160-mosaic.jpeg"
-BACKGROUND_LOCKSCREEN="/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg"
-BACKGROUND_DESKTOP="/usr/share/desktop/Flåm-3840x2160-plain.jpeg"
 
 OUTPUT_DIRECTORY="."
 CACHE_DIRECTORY="cache"
@@ -257,37 +250,6 @@ while [ $# -gt 0 ] ; do
       shift
    elif [ "$1" == "--one-disk-only" ] || [ "$1" == "-1" ] ; then
       USE_SEPARATE_DISKS=0
-   elif [ "$1" == "--video" ] || [ "$1" == "-V" ] ; then
-      VIDEO="$2"
-      if [ "${VIDEO}" == "XGA" ] ; then
-         VIDEO="1024x768"   # Standard, 4:3
-      elif [ "${VIDEO}" == "SXGA" ] ; then
-         VIDEO="1280x960"   # SXGA, 4:3
-      elif [ "${VIDEO}" == "HD" ] ; then
-         VIDEO="1280x720"   # HD, 16:9
-      elif [ "${VIDEO}" == "HD+" ] ; then
-         VIDEO="1600x900"   # HD+, 16:9
-      elif [ "${VIDEO}" == "FHD" ] ; then
-         VIDEO="1920x1080"  # Full HD, 16:9
-      elif [ "${VIDEO}" == "UHD" ] ; then
-         VIDEO="3840x2160"  # 4K, 16:9
-      fi
-      if [ "${VIDEO}" != "NA" ] ; then
-         if [[ ! "${VIDEO}" =~ ^[0-9]+x[0-9]+$ ]] ; then
-            echo >&2 "ERROR: Bad video setting: ${VIDEO}"
-            exit 1
-         fi
-      fi
-      shift
-   elif [ "$1" == "--keyboard-model" ] || [ "$1" == "-m" ] ; then
-      KEYBOARD_MODEL="$2"
-      shift
-   elif [ "$1" == "--keyboard-layouts" ] || [ "$1" == "-l" ] ; then
-      KEYBOARD_LAYOUTS="$2"
-      shift
-   elif [ "$1" == "--locales" ] || [ "$1" == "-L" ] ; then
-      LOCALES="$2"
-      shift
    elif [ "$1" == "--hostname" ] || [ "$1" == "-h" ] ; then
       FQDN="$2"
       shift
@@ -443,8 +405,6 @@ else
    echo >&2 "ERROR: Invalid hypervisor ${HYPERVISOR}!"
    exit 1
 fi
-LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
-KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
 
 pushd projects
 projectConfiguration="${PROJECT}.config"
@@ -459,6 +419,28 @@ fi
 # shellcheck disable=SC1090
 . "./${projectConfiguration}"
 popd
+
+LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
+KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
+if [ "${VIDEO}" == "XGA" ] ; then
+   VIDEO="1024x768"   # Standard, 4:3
+elif [ "${VIDEO}" == "SXGA" ] ; then
+   VIDEO="1280x960"   # SXGA, 4:3
+elif [ "${VIDEO}" == "HD" ] ; then
+   VIDEO="1280x720"   # HD, 16:9
+elif [ "${VIDEO}" == "HD+" ] ; then
+   VIDEO="1600x900"   # HD+, 16:9
+elif [ "${VIDEO}" == "FHD" ] ; then
+   VIDEO="1920x1080"  # Full HD, 16:9
+elif [ "${VIDEO}" == "UHD" ] ; then
+   VIDEO="3840x2160"  # 4K, 16:9
+fi
+if [ "${VIDEO}" != "NA" ] ; then
+   if [[ ! "${VIDEO}" =~ ^[0-9]+x[0-9]+$ ]] ; then
+      echo >&2 "ERROR: Bad video setting: ${VIDEO}"
+      exit 1
+   fi
+fi
 
 NAME="${NAME}-${PROJECT}"
 PROVISIONERS="$(echo "${PROVISIONERS}" | xargs -n1 | sort -u)"
