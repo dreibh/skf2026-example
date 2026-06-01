@@ -126,6 +126,12 @@ for locale in ${LOCALES} ; do
    fi
 done
 if [ ${#missingLocales[@]} -ne 0 ] ; then
-   echo >&2 "ERROR: Some locales are missing: ${missingLocales[*]}!"
-   exit 1
+   if [ "${ID}" == "freebsd" ] ; then
+      # Some locales are missing in FreeBSD, e.g. ar_YE, bs_BA, en_DK.
+      # This can only be fixed upstream.
+      echo >&2 "WARNING: Some locales are missing: ${missingLocales[*]}!"
+   else
+      echo >&2 "ERROR: Some locales are missing: ${missingLocales[*]}!"
+      exit 1
+   fi
 fi
