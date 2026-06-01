@@ -31,16 +31,16 @@
 # Bash options:
 set -euo pipefail
 
+
 . ./vm-build-helper
 . ./supported-systems.config
-. ./regional-settings.config
 
 
 HYPERVISOR="VirtualBox"
 # SYSTEMS="${DEFAULT_SYSTEMS_CURRENT}"
 SYSTEMS="${DEFAULT_SYSTEMS_CURRENT_AND_LEGACY}"
 SYSTEMS="Ubuntu-26.04 Debian-13 Fedora-44 FreeBSD-15.0-RELEASE"
-# SYSTEMS="Ubuntu-26.04"
+SYSTEMS="Ubuntu-24.04"
 
 # ------ Parameters ---------------------------------------
 PROJECTS="Basic"   # Minimal Basic Development KDE KDE+Development
@@ -57,11 +57,6 @@ BALLOON=1024
 DISK_ROOT=32768
 DISK_HOME=16384
 DISK_SWAP=2048
-VIDEO="HD+"
-BOOTSPLASH="/usr/share/bootsplash/Bjørnsund-3840x2160.jpeg"
-BACKGROUND_SDDM="/usr/share/desktop/Nordmarka-3840x2160-mosaic.jpeg"
-BACKGROUND_LOCKSCREEN="/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg"
-BACKGROUND_DESKTOP="/usr/share/desktop/Flåm-3840x2160-plain.jpeg"
 OPTIONS=""
 # ---------------------------------------------------------
 

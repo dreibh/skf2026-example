@@ -31,9 +31,9 @@
 # Bash options:
 set -euo pipefail
 
+
 . ./vm-build-helper
 . ./supported-systems.config
-. ./regional-settings.config
 
 
 HYPERVISOR="VirtualBox"

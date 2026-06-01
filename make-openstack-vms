@@ -31,9 +31,9 @@
 # Bash options:
 set -euo pipefail
 
+
 . ./vm-build-helper
 . ./supported-systems.config
-. ./regional-settings.config
 
 
 HYPERVISOR="QEMU"   # "VirtualBox" "QEMU"
@@ -56,11 +56,6 @@ BALLOON=2048
 DISK_ROOT=16384
 DISK_HOME=0   # Just one disk -> not used here!
 DISK_SWAP=0   # Just one disk -> not used here!
-VIDEO="HD+"
-BOOTSPLASH=""
-BACKGROUND_SDDM="/usr/share/nornet-desktop/Desktop-with-Logo/Server1-3840x2160-plain.jpeg"
-BACKGROUND_LOCKSCREEN="/usr/share/nornet-desktop/Desktop-with-Logo/FileSrv1-3840x2160-plain.jpeg"
-BACKGROUND_DESKTOP="/usr/share/nornet-desktop/Desktop-with-Logo/Display1-3840x2160-plain.jpeg"
 OPTIONS="-1"   # Just one disk!
 # ---------------------------------------------------------
 

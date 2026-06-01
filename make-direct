@@ -32,19 +32,6 @@
 set -euo pipefail
 
 
-VIDEO="1024x768"
-KEYBOARD_MODEL="pc105"
-KEYBOARD_LAYOUTS="
-   de:nodeadkeys
-   no
-   us
-"
-LOCALES="
-   de_DE
-   en_US
-   nb_NO
-"
-
 # USER_NAME="nornetpp"
 # USER_REALNAME="NorNet Praesum Presum"
 if [ "$(id -u)" -eq 0 ] && [ -v SUDO_USER ] ; then
@@ -58,10 +45,15 @@ if [ "${USER_REALNAME}" == "" ] ; then
    USER_REALNAME="${USER_NAME}"
 fi
 
-BOOTSPLASH="/usr/share/bootsplash/Bjørnsund-3840x2160.jpeg"
-BACKGROUND_SDDM="/usr/share/desktop/Nordmarka-3840x2160-mosaic.jpeg"
-BACKGROUND_LOCKSCREEN="/usr/share/desktop/Flåm-3840x2160-mosaic.jpeg"
-BACKGROUND_DESKTOP="/usr/share/desktop/Flåm-3840x2160-plain.jpeg"
+# Defaults, to be overwritten by the actual configuration:
+VIDEO="1024x768"
+KEYBOARD_MODEL="pc105"
+KEYBOARD_LAYOUTS="de:nodeadkeys no us"
+LOCALES="de_DE en_US nb_NO"
+BOOTSPLASH=""
+BACKGROUND_SDDM=""
+BACKGROUND_LOCKSCREEN=""
+BACKGROUND_DESKTOP=""
 
 
 # ###### Check/set environment variables ####################################
@@ -143,9 +135,6 @@ while [ $# -gt 0 ] ; do
    shift
 done
 
-LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
-KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
-
 
 # ###### Get provisioners ###################################################
 pushd >/dev/null projects
@@ -159,6 +148,9 @@ PROVISIONERS=""
 . ./"${CONFIG}"
 PROVISIONERS="$(echo "${PROVISIONERS}" | xargs -n1 | sort -u)"
 popd >/dev/null
+
+LOCALES="$(echo "${LOCALES}" | tr "," " " | xargs -n1 | sort | xargs)"
+KEYBOARD_LAYOUTS="$(echo "${KEYBOARD_LAYOUTS}" | tr "," " " | xargs)"
 
 
 # ###### Ensure that the generated files are there ##########################

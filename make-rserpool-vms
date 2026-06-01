@@ -31,9 +31,9 @@
 # Bash options:
 set -euo pipefail
 
+
 . ./vm-build-helper
 . ./supported-systems.config
-. ./regional-settings.config
 
 
 HYPERVISOR="VirtualBox"
@@ -55,12 +55,10 @@ BALLOON=2048
 DISK_ROOT=32768
 DISK_HOME=65536
 DISK_SWAP=2048
-VIDEO="FHD"
-BOOTSPLASH=""
-BACKGROUND_SDDM="/usr/share/rserpooldemo/desktop/Zollverein-3840x2160-plain.jpeg"
-BACKGROUND_LOCKSCREEN="/usr/share/rserpooldemo/desktop/Zollverein-3840x2160-plain.jpeg"
-BACKGROUND_DESKTOP="/usr/share/rserpooldemo/desktop/Background-3840x2160-plain.png"
 OPTIONS=""
+
+# Explicitly set full-HD for boot screen:
+VIDEO="FHD"
 # ---------------------------------------------------------
 
 files/generate-backgrounds
