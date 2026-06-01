@@ -46,34 +46,9 @@ fi
 set -x
 
 
-# ###### Clone or update Git repository #####################################
-clone-or-update ()
-{
-   local repository="$1"
-   local url="$2"
-   local clone_maxtrials=10
-   local clone_delay=60
-   if [ ! -e "${repository}" ] ; then
-      try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git clone "${url}" "${repository}"
-   else
-      pushd "${repository}" >/dev/null
-      try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git fetch --all
-      try-hard ${clone_maxtrials} ${clone_delay} -- sudo -u "${USER_NAME}" git pull
-      popd >/dev/null
-   fi
-}
-
-
 # ###### Main program #######################################################
 
 # ====== Check environment variables ========================================
-if [ ! -v USER_NAME ] || [ "${USER_NAME}" == "" ] ; then
-   echo >&2 "Usage: env USER_NAME=<user> $0"
-   echo >&2 "Example: sudo env USER_NAME=nornetpp $0"
-   exit 1
-fi
-USER_HOME="$(getent passwd "${USER_NAME}" | cut -d: -f6 || awk -F: -v user="${USER_NAME}" '$1==user { print $6 }' /etc/passwd)"
-
 if [ ! -e /etc/os-release ] ; then
    echo >&2 "ERROR: /etc/os-release is not available!"
    exit 1
@@ -83,45 +58,12 @@ fi
 
 # ====== Package installation ===============================================
 
-# ------ Debian -------------------------------------------------------------
-if [ "${ID}" == "debian" ] ; then
+# ------ Ubuntu/Debian ------------------------------------------------------
+if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 
-   # Work-around for SimulaMet Environment not (yet) in Debian:
    packages="
       texlive-full
    "
-   # libreoffice-l10n-en-gb libreoffice-l10n-de libreoffice-l10n-nb hunspell-de-de hunspell-no hunspell-en-gb hunspell-en-us hunspell-en-au
-
-   # shellcheck disable=SC2086
-   env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
-
-   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/src"
-   cd "${USER_HOME}/src"
-   clone-or-update simulamet https://dreibh@github.com/dreibh/simulamet
-
-   cores=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo "1")
-   cd "${USER_HOME}/src/simulamet"
-   sudo -u "${USER_NAME}" cmake . -DCMAKE_INSTALL_PREFIX=/usr -DFLAT_DIRECTORY_STRUCTURE=0 -DPRINT_A4=1 -DINSTALL_ORIGINALS=0 -DCMAKE_VERBOSE_MAKEFILE=OFF
-   sudo -u "${USER_NAME}" make -j"${cores}"
-   make install
-
-   cd "${USER_HOME}/src"
-   rm -rf simulamet
-
-   mkdir -p /boot/SimulaMet
-   cp /usr/share/simulamet/Splash/*.jpeg /boot/SimulaMet
-   update-grub
-
-# ------ Ubuntu -------------------------------------------------------------
-elif [ "${ID}" == "ubuntu" ] ; then
-
-   packages="
-      simulamet-management
-      simulamet-desktop
-      simulamet-development
-      texlive-full
-   "
-   # libreoffice-l10n-en-gb libreoffice-l10n-de libreoffice-l10n-nb hunspell-de-de hunspell-no hunspell-en-gb hunspell-en-us hunspell-en-au
 
    # shellcheck disable=SC2086
    env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ${packages}
@@ -130,9 +72,6 @@ elif [ "${ID}" == "ubuntu" ] ; then
 elif [ "${ID}" == "fedora" ] ; then
 
    packages="
-      simulamet-management
-      simulamet-desktop
-      simulamet-development
       texlive-scheme-full
    "
 
@@ -142,25 +81,12 @@ elif [ "${ID}" == "fedora" ] ; then
 # ------ FreeBSD ------------------------------------------------------------
 elif [ "${ID}" == "freebsd" ] ; then
 
-   # Ensure that fonts configuration is up-to-date:
-   fc-cache -fv
+   packages="
+      texlive-full
+   "
 
-   # Work-around for SimulaMet Environment not (yet) in FreeBSD Ports Collection:
-   sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/src"
-   cd "${USER_HOME}/src"
-   clone-or-update simulamet https://dreibh@github.com/dreibh/simulamet
-
-   cores="$(sysctl -a | grep "^hw.ncpu" | cut -d ":" -f2 | tr -d " " || echo "1")"
-   cd "${USER_HOME}/src/simulamet"
-   sudo -u "${USER_NAME}" cmake . -DCMAKE_INSTALL_PREFIX=/usr/local
-   sudo -u "${USER_NAME}" make -j"${cores}"
-   make install
-   if [ ! -e /usr/share/simulamet ] ; then
-      sudo ln -s /usr/local/share/simulamet /usr/share/simulamet || true
-   fi
-
-   cd "${USER_HOME}/src"
-   rm -rf simulamet
+   # shellcheck disable=SC2086
+   pkg install -y ${packages}
 
 # ------ Unknown ------------------------------------------------------------
 else
