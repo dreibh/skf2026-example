@@ -80,9 +80,6 @@ if [ "${ID}" == "ubuntu" ] || [ "${ID}" == "debian" ] ; then
 
    apt-get update
    env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=l apt-get dist-upgrade -y
-   if [ "${ID}" == "ubuntu" ] ; then
-      dhcpcd || true   # FIXME: Work-around for stopped networking in Ubuntu 24.04
-   fi
    env DEBIAN_FRONTEND=noninteractive apt-get autoremove -y --purge
    if command -v apt-file 2>/dev/null ; then
       apt-file update
