@@ -46,7 +46,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-glossytext 2.7.1"
+   echo "gs-glossytext 2.7.2"
    exit 0
 }
 

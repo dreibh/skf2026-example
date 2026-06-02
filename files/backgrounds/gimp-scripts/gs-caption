@@ -42,7 +42,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-caption 2.7.1"
+   echo "gs-caption 2.7.2"
    exit 0
 }
 
@@ -173,9 +173,6 @@ else
    # GIMP 3.x:
    GIMP_OPTIONS="--quit --new-instance --no-interface --no-splash --batch-interpreter plug-in-script-fu-eval --batch -"
 fi
-
-# This script does not use gradients/palettes/brushes:
-GIMP_OPTIONS="${GIMP_OPTIONS}"
 
 
 # ====== Call GIMP ==========================================================
