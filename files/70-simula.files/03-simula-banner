@@ -35,7 +35,11 @@ print-utf8 -s "╭🇳🇴" "─" "🇳🇴╮"
 # ------ Print the logo -----------------------------------------------------
 (
   echo -e "${color1}-- ${color2}$(gettext "Welcome to") ${color1}--"
-  figlet -f big "Simula"
+  # Try Figlet, Toilet, Banner, or use echo if everything else fails:
+  figlet -f big "Simula" 2>/dev/null || \
+     toilet -f big "Simula" 2>/dev/null || \
+     banner "Simula" 2>/dev/null || \
+     echo "Simula" 
   echo -e "🎂 ${color2}25th Anniversary — 2001–2026${color1} 🎂"
 ) | print-utf8 -C "│" "│"
 
