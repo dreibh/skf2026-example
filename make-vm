@@ -61,7 +61,6 @@ function generate-serial-number ()
 
 
 # ###### Defaults ###########################################################
-# PACKER="${HOME}/src/packer/bin/packer"
 PACKER="/usr/bin/packer"
 
 PROJECT="NorNet"
@@ -134,7 +133,9 @@ DOCKER_REPOSITORY="dreibh"
 DOCKER_TAG=""
 
 
-# ###### Handle command-line parameters #####################################
+# ###### Main program #######################################################
+
+# ====== Handle command-line parameters =====================================
 while [ $# -gt 0 ] ; do
    if [ "$1" == "--output-directory" ] || [ "$1" == "-O" ] ; then
       OUTPUT_DIRECTORY="$2"
@@ -317,7 +318,7 @@ while [ $# -gt 0 ] ; do
 done
 
 
-# ###### Get configuration ##################################################
+# ====== Get configuration ==================================================
 if [ ! -e "${PACKER}" ] ; then
    echo >&2 "ERROR: Packer (${PACKER}) not found!"
    exit 1
@@ -497,7 +498,7 @@ if [ ${VM_BALLOON_MIN} -lt 0 ] ; then
 fi
 
 
-# ###### Check Packer version ###############################################
+# ====== Check Packer version ===============================================
 packerVersion=$(${PACKER} version)
 requiredMinVersion="1.7.1~"
 check=$(echo -e "${requiredMinVersion}\n${packerVersion}" | sort -V -r | head -n1)
@@ -507,7 +508,7 @@ if [ "${check}" == "${requiredMinVersion}" ] ; then
 fi
 
 
-# ###### Write Packer configuration #########################################
+# ====== Write Packer configuration =========================================
 CACHE_DIRECTORY="$(realpath "${CACHE_DIRECTORY}")"
 mkdir -p "${CACHE_DIRECTORY}"
 
@@ -716,7 +717,7 @@ cat >>"${JSONTMP}" <<EOF
 EOF
 
 
-# ###### Clean up and check #################################################
+# ====== Clean up and check =================================================
 if [ "${HYPERVISOR}" == "QEMU" ] ; then
    # QEMU has no vboxmanage!
    jq "del(.builders[].vboxmanage)" <"${JSONTMP}" >"${JSON}"
@@ -729,9 +730,9 @@ fi
 rm -f "${JSONTMP}"
 
 
-# ###### Run Packer #########################################################
+# ====== Run Packer =========================================================
 
-# ====== Prepare some variables =============================================
+# ------ Prepare some variables ---------------------------------------------
 vm_id="$(generate-serial-number)"
 vm_name="${NAME/${HYPERVISOR}-/}"
 vm_version=$(date +"%Y.%m.%d-%H%M%S")
@@ -756,8 +757,7 @@ elif [ "${DISTRIBUTION}" == "FreeBSD" ] && [[ "${RELEASE}" =~ ^RELEASE- ]] ; the
    vm_tags="${vm_tags};LTS"
 fi
 
-
-# ====== Print configuration ================================================
+# ------ Print configuration ------------------------------------------------
 echo "Configuration:"
 echo " - HYPERVISOR=${HYPERVISOR}"
 echo " - NAME=${NAME}"
@@ -798,16 +798,16 @@ if [ ${DRY_RUN} -ne 0 ] ; then
 fi
 
 
-# ====== Hypervisor-specific preparations ===================================
+# ------ Hypervisor-specific preparations -----------------------------------
 if [ "${HYPERVISOR}" == "VirtualBox" ] ; then
-   # ====== VirtualBox Ensure that VirtualBox modules are loaded ============
+   # ------ VirtualBox Ensure that VirtualBox modules are loaded ------------
    if [ "$(lsmod|grep "^vboxdrv")" == "" ] ; then
       echo "Need to load vboxdrv ..."
       sudo service virtualbox start || true
       sudo service vboxdrv start || true
    fi
 
-   # ====== VirtualBox: Stop VM, if it is running ===========================
+   # ------ VirtualBox: Stop VM, if it is running ---------------------------
    # Power off the VM, if it exists
    timeout --kill-after=30 15 vboxmanage controlvm "${vm_name}" poweroff || true
    # shellcheck disable=SC2009
@@ -818,11 +818,11 @@ if [ "${HYPERVISOR}" == "VirtualBox" ] ; then
       sleep 5
    fi
 
-   # ====== VirtualBox: Stop VM, if it exists ===============================
+   # ------ VirtualBox: Stop VM, if it exists -------------------------------
    vboxmanage unregistervm "${vm_name}" --delete || true
 
 
-# ====== QEMU: Ensure that VirtualBox modules are unloaded ==================
+# ------ QEMU: Ensure that VirtualBox modules are unloaded ------------------
 elif [ "${HYPERVISOR}" == "QEMU" ] ; then
    if [ "$(lsmod|grep "^vboxdrv")" != "" ] ; then
       echo "Need to unload vboxdrv ..."
@@ -832,7 +832,7 @@ elif [ "${HYPERVISOR}" == "QEMU" ] ; then
 fi
 
 
-# ====== Finally, let Packer build the VM ===================================
+# ------ Finally, let Packer build the VM -----------------------------------
 echo "Running Packer for ${JSON}:"
 cd "${OUTPUT_DIRECTORY}/${NAME}"
 rm -rf "${vm_name}"
