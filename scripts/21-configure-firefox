@@ -68,7 +68,7 @@ fi
 . /etc/os-release
 
 
-# ====== Ensure that script is ran by user account to provision =============
+# ====== Ensure that script is executed by the user account =================
 if [ "$(id -u)" -eq 0 ] ; then
    # Running by configuring sudo root. Run script again, but as user!
    echo "Running as ROOT! SUDO_USER=${SUDO_USER}"
