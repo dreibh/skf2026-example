@@ -92,7 +92,8 @@ else
 fi
 
 
-# ====== Prepare directory ==================================================
+# ====== Prepare directories ================================================
+mkdir -p "${HOME}/Desktop"
 mkdir -p "${HOME}/src"
 mkdir -p "${HOME}/python-environments"
 cd "${HOME}/src"
@@ -118,6 +119,7 @@ git fetch --all
 
 # ------ Prepare and activate Python environment ----------------------------
 python3 -m venv "${HOME}/python-environments/deepfakeecg"
+# shellcheck disable=SC1091
 . "${HOME}/python-environments/deepfakeecg/bin/activate"
 
 # ------ Install the Python dependencies into the Python environment --------
@@ -131,6 +133,39 @@ tempDirectory="$(mktemp -d pip.XXXXXXXXXXXXXXXX)"
 TMPDIR=${tempDirectory} \
    pip install -r requirements.txt
 rm -rf "${tempDirectory}"
+
+
+# ------ Generate a small launcher script -----------------------------------
+
+# NOTE: The launcher script must contain the paths to the Python environment
+#       and the program => $(pwd) provides the current directory.
+
+cat >"${HOME}/DeepFakeECG-Launcher" <<EOF
+#!/bin/sh -eu
+
+# Activate the Python environment:
+. ${HOME}/python-environments/deepfakeecg/bin/activate
+
+# Run the actual launcher script for DeepFakeECG Generator Plus:
+cd $(pwd)
+./deepfakeecg-launcher
+EOF
+
+# ------ Generate a desktop icon --------------------------------------------
+# NOTE: The desktop icon must contain the full path to the program.
+#       => $(pwd) provides the current directory.
+
+cat >"${HOME}/Desktop/DeepFakeECG.desktop" <<EOF
+[Desktop Entry]
+Comment=Launches DeekFakeECG Generator Plus
+Exec=${HOME}/DeepFakeECG-Launcher
+Icon=face-smile
+Name=DeekFakeECG Generator Plus
+StartupNotify=true
+Terminal=true
+TerminalOptions=
+Type=Application
+EOF
 
 
 # Go back to the original directory:
