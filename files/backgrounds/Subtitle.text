@@ -34,7 +34,7 @@ set -euo pipefail
 
 # ###### Main program #######################################################
 ${GS_GLOSSYTEXT} "${OUTPUT}"                            \
-   "Simula Metropolitan Centre for Digital Engineering" \
+   "25th Anniversary — 2001–2026"                       \
    --font-name              "Open Sans Semibold"        \
    --font-size              256                         \
    --outline-size           20                          \

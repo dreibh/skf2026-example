@@ -62,9 +62,9 @@ SET(TDD_RESOLUTIONS
 SET(TDD_VARIANTS
    plain
    mosaic
-#   oil
-#   cloth
-#   oldphoto
+   oil
+   cloth
+   oldphoto
 )
 
 SET(TDD_JPEG_QUALITY          92.5)
@@ -78,7 +78,7 @@ SET(TDD_BOOTSPLASH_RESOLUTIONS
    # 3840x2160   # 4K 16:9
    ${TDD_RESOLUTIONS}   # Use all image resolutions
 )
-SET(TDD_BOOTSPLASH_VARIANT    "plain")
+SET(TDD_BOOTSPLASH_VARIANT    "oldphoto")
 SET(TDD_BOOTSPLASH_TEXT       "Thomas Dreibholz's System Installation Scripts: ${this_version}")
 
 SET(TDD_PRINT_VARIANT         "plain")

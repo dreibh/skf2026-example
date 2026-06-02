@@ -34,7 +34,7 @@ set -euo pipefail
 
 # ###### Main program #######################################################
 ${GS_GLOSSYTEXT} "${OUTPUT}"                      \
-   "SimulaMet"                                    \
+   "Simula"                                       \
    --font-name              "Open Sans Extrabold" \
    --font-size              1024                  \
    --outline-size           30                    \

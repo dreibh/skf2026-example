@@ -47,7 +47,7 @@ GM="gm"
 # ------ Proportions --------------------------------------------------------
 titleWidth=0.75      # of Width
 subtitleWidth=0.80   # of Width
-subtitleGap=0.02     # of Height
+subtitleGap=0.05     # of Height
 nameHeight=0.035     # of Height
 titleBorder=0.50     # of Name Height
 nameBorder=0.35      # of Name Height
