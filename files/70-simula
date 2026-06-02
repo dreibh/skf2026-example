@@ -1,0 +1,6 @@
+# ---------------------------------------------------------------------------
+# IMPORANT: The destination directories must already exist!
+# These directories should have been created by scripts/01-system-settings.
+# ---------------------------------------------------------------------------
+
+70-simula.files/03-simula-banner   /tmp/system-info/
