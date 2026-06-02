@@ -87,13 +87,13 @@ SET(TDD_PRINT_PREFIX          "SimulaMet")
 SET(TDD_PRINT_A4              0)
 SET(TDD_PRINT_A3              0)
 
-SET(TDD_INSERT_HOSTNAME       1)   # If name begings with a lower-case letter, assume it is a hostname and insert it into the output image
+SET(TDD_INSERT_HOSTNAME       1)   # If name begins with a lower-case letter, assume it is a hostname and insert it into the output image
 SET(TDD_DOMAIN                "simulamet.no")
 SET(TDD_COPYRIGHT             "Copyright ${this_year} by Thomas Dreibholz")
 
 # ------ Inputs -------------------------------------------
 FILE(GLOB TDD_TEXT_FILES  "*.text")
-FILE(GLOB TDD_IMAGE_FILES "Input/*.[Jj][Pp][Ee][Gg]" "Input/*.[Jj][Pp][Gg]" "Input/*.[Pp][Nn][Gg]")
+FILE(GLOB TDD_IMAGE_FILES "Input/*.[Jj][Pp][Ee][Gg]" "Input/*.[Jj][Pp][Gg]" "Input/*.[Pp][Nn][Gg]" "Input/*.[Ww][Ee][Bb][Pp]")
 
 SET(TDD_BUILD_OVERLAY "${CMAKE_CURRENT_SOURCE_DIR}/build-overlay")
 SET(TDD_BUILD_CAPTION "${CMAKE_CURRENT_SOURCE_DIR}/build-caption")
