@@ -42,7 +42,7 @@ usage () {
 
 # ###### Version ############################################################
 version () {
-   echo "gs-resize-with-cropping 2.7.1"
+   echo "gs-resize-with-cropping 2.7.2"
    exit 0
 }
 
