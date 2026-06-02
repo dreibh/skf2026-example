@@ -150,6 +150,7 @@ cat >"${HOME}/DeepFakeECG-Launcher" <<EOF
 cd $(pwd)
 ./deepfakeecg-launcher
 EOF
+chmod +x "${HOME}/DeepFakeECG-Launcher"
 
 # ------ Generate a desktop icon --------------------------------------------
 # NOTE: The desktop icon must contain the full path to the program.
