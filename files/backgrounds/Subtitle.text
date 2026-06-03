@@ -41,10 +41,10 @@ if [ -z "${fontName}" ] ; then
    exit 1
 fi
 
-${GS_GLOSSYTEXT} "${OUTPUT}"              \
-   "25th Anniversary — 2001–2026"         \
-   --font-name              "${fontName}" \
-   --font-size              256           \
-   --outline-size           20            \
-   --blend-gradient-text    "Golden"      \
+${GS_GLOSSYTEXT} "${OUTPUT}"                            \
+   "25th Anniversary — 2001–2026"                       \
+   --font-name              "${fontName}"               \
+   --font-size              256                         \
+   --outline-size           20                          \
+   --blend-gradient-text    "Golden"                    \
    --blend-gradient-outline "Golden"
