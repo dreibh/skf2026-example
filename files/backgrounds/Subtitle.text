@@ -33,10 +33,18 @@ set -euo pipefail
 
 
 # ###### Main program #######################################################
-${GS_GLOSSYTEXT} "${OUTPUT}"                            \
-   "25th Anniversary — 2001–2026"                       \
-   --font-name              "Open Sans Semibold"        \
-   --font-size              256                         \
-   --outline-size           20                          \
-   --blend-gradient-text    "Golden"                    \
+
+# Using Open Sans SemiBold style:
+fontName="$(fc-list --format "%{file}: %{fullname[0]}\n" | grep "/OpenSans-Semi[Bb]old.ttf" | sed -e "s/.*: //" || true)"
+if [ -z "${fontName}" ] ; then
+   echo >&2 "ERROR: Open Sans SemiBold is not available!"
+   exit 1
+fi
+
+${GS_GLOSSYTEXT} "${OUTPUT}"              \
+   "25th Anniversary — 2001–2026"         \
+   --font-name              "${fontName}" \
+   --font-size              256           \
+   --outline-size           20            \
+   --blend-gradient-text    "Golden"      \
    --blend-gradient-outline "Golden"
