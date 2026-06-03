@@ -38,8 +38,8 @@ set -euo pipefail
 
 HYPERVISOR="VirtualBox"
 SYSTEMS="${DEFAULT_SYSTEMS_CURRENT}"
-# SYSTEMS="Ubuntu-26.04 Debian-13 Fedora-44 FreeBSD-15.0-RELEASE"
-SYSTEMS="Ubuntu-26.04"
+SYSTEMS="Ubuntu-26.04 Debian-13 Fedora-44 FreeBSD-15.0-RELEASE"
+# SYSTEMS="Ubuntu-26.04"
 
 # ------ Parameters ---------------------------------------
 PROJECTS="Simula25"
@@ -51,9 +51,9 @@ USER_REALNAME="Simula Example User"
 CHIPSET=ich9
 FIRMWARE=efi
 CORES=4
-MEMORY=6144
+MEMORY=8192
 BALLOON=2048
-DISK_ROOT=32768
+DISK_ROOT=49152
 DISK_HOME=16384
 DISK_SWAP=4096
 OPTIONS=""
