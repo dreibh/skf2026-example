@@ -48,6 +48,24 @@ set -x
 
 # ###### Main program #######################################################
 
+# ====== Ensure that script is executed by the user account =================
+if [ "$(id -u)" -eq 0 ] ; then
+   # Running by configuring sudo root. Run script again, but as user!
+   echo "Running as ROOT! SUDO_USER=${SUDO_USER}"
+   if [ "${SUDO_USER}" != "root" ] ; then
+      # shellcheck disable=SC2068
+      sudo -u "${SUDO_USER}" "$0" $@ && exit 0
+      exit 1
+   else
+      # Prevent recursive invocation as "root" user:
+      echo >&2 "ERROR: Run this script either as user or with sudo."
+      exit 1
+   fi
+else
+   # Echo running as user
+   echo "Running as ${USER}! SUDO_USER=${SUDO_USER:-}"
+fi
+
 # ====== Check/set environment variables ====================================
 if [ ! -v USER_NAME ] || [ "${USER_NAME}" == "" ] ; then
    echo >&2 "Usage: env USER_NAME=<user> $0"
