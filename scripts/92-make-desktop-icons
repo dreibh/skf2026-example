@@ -93,7 +93,7 @@ APPLICATIONS="
 
 
 # ====== Create Desktop directory ===========================================
-mkdir -p "${DESKTOP_DIRECTORY}"
+sudo -u "${USER_NAME}" mkdir -p "${DESKTOP_DIRECTORY}"
 
 
 # ====== Create links for directories =======================================
@@ -104,7 +104,7 @@ for directory in ${DIRECTORIES} ; do
    fi
    if [ ! -e "${DESKTOP_DIRECTORY}/${basename}" ] ; then
       echo "Creating desktop link for directory ${directory} as ${basename} ..."
-      ln -s "${directory}" "${DESKTOP_DIRECTORY}/${basename}"
+      sudo -u "${USER_NAME}" ln -s "${directory}" "${DESKTOP_DIRECTORY}/${basename}"
    fi
 done
 
@@ -118,7 +118,7 @@ for application in ${APPLICATIONS} ; do
          echo "FOUND: ${application} -> ${source}/${application}.desktop"
          if [ ! -e "${DESKTOP_DIRECTORY}/${application}.desktop" ] ; then
             echo "Creating desktop link for application ${application} (in ${source}) ..."
-            ln -s "${source}/${application}.desktop" "${DESKTOP_DIRECTORY}/" || true
+            sudo -u "${USER_NAME}" ln -s "${source}/${application}.desktop" "${DESKTOP_DIRECTORY}/" || true
             break
          fi
       fi

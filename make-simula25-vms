@@ -53,8 +53,8 @@ FIRMWARE=efi
 CORES=4
 MEMORY=8192
 BALLOON=2048
-DISK_ROOT=32768
-DISK_HOME=32768
+DISK_ROOT=$((48*1024))
+DISK_HOME=$((64*1024))
 DISK_SWAP=4096
 OPTIONS=""
 # ---------------------------------------------------------
