@@ -182,6 +182,7 @@ elif [ "${ID}" == "fedora" ] ; then
       oxygen-icon-theme
       plasma-oxygen
       plasma-workspace-x11
+      qt6-qtimageformats
       strawberry
       wireshark
    "
