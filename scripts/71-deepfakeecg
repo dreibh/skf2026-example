@@ -72,6 +72,8 @@ if [ ! -e /etc/os-release ] ; then
    exit 1
 fi
 . /etc/os-release
+UNAME="$(uname)"
+
 
 # ====== Ensure that script is executed by the user account =================
 if [ "$(id -u)" -eq 0 ] ; then
@@ -100,47 +102,48 @@ cd "${HOME}/src"
 
 
 # ====== DeepFakeECG Generator Plus =========================================
+if [ "${UNAME}" == "Linux" ] ; then
 
-# ------ Clone the repository -----------------------------------------------
-clone-or-update deepfake-ecg-generator-plus   https://hf.co/spaces/dreibh/deepfake-ecg-generator-plus
+   # ------ Clone the repository -----------------------------------------------
+   clone-or-update deepfake-ecg-generator-plus   https://hf.co/spaces/dreibh/deepfake-ecg-generator-plus
 
-# Enter the directory of the repository:
-pushd deepfake-ecg-generator-plus >/dev/null
-
-
-# ------ Add additional remotes ---------------------------------------------
-if ! git remote get-url search-ihi >/dev/null 2>&1 ; then
-   git remote add search-ihi http://hf.co/spaces/SEARCH-IHI/deepfake-ecg-generator-plus
-fi
-if ! git remote get-url deepsynthbody >/dev/null 2>&1 ; then
-   git remote add deepsynthbody http://hf.co/spaces/deepsynthbody/deepfake-ecg-generator-plus
-fi
-git fetch --all
-
-# ------ Prepare and activate Python environment ----------------------------
-python3 -m venv "${HOME}/python-environments/deepfakeecg"
-# shellcheck disable=SC1091
-. "${HOME}/python-environments/deepfakeecg/bin/activate"
-
-# ------ Install the Python dependencies into the Python environment --------
-
-# NOTE: The dependencies are relatively large, too big to build them
-#       in /tmp in many cases. A temporary directory is necessary!
-
-tempDirectory=""
-trap 'rm -rf "${tempDirectory}"' EXIT INT TERM HUP
-tempDirectory="$(mktemp -d pip.XXXXXXXXXXXXXXXX)"
-TMPDIR=${tempDirectory} \
-   pip install -r requirements.txt
-rm -rf "${tempDirectory}"
+   # Enter the directory of the repository:
+   pushd deepfake-ecg-generator-plus >/dev/null
 
 
-# ------ Generate a small launcher script -----------------------------------
+   # ------ Add additional remotes ---------------------------------------------
+   if ! git remote get-url search-ihi >/dev/null 2>&1 ; then
+      git remote add search-ihi http://hf.co/spaces/SEARCH-IHI/deepfake-ecg-generator-plus
+   fi
+   if ! git remote get-url deepsynthbody >/dev/null 2>&1 ; then
+      git remote add deepsynthbody http://hf.co/spaces/deepsynthbody/deepfake-ecg-generator-plus
+   fi
+   git fetch --all
 
-# NOTE: The launcher script must contain the paths to the Python environment
-#       and the program => $(pwd) provides the current directory.
+   # ------ Prepare and activate Python environment ----------------------------
+   python3 -m venv "${HOME}/python-environments/deepfakeecg"
+   # shellcheck disable=SC1091
+   . "${HOME}/python-environments/deepfakeecg/bin/activate"
 
-cat >"${HOME}/DeepFakeECG-Launcher" <<EOF
+   # ------ Install the Python dependencies into the Python environment --------
+
+   # NOTE: The dependencies are relatively large, too big to build them
+   #       in /tmp in many cases. A temporary directory is necessary!
+
+   tempDirectory=""
+   trap 'rm -rf "${tempDirectory}"' EXIT INT TERM HUP
+   tempDirectory="$(mktemp -d pip.XXXXXXXXXXXXXXXX)"
+   TMPDIR=${tempDirectory} \
+      pip install -r requirements.txt
+   rm -rf "${tempDirectory}"
+
+
+   # ------ Generate a small launcher script -----------------------------------
+
+   # NOTE: The launcher script must contain the paths to the Python environment
+   #       and the program => $(pwd) provides the current directory.
+
+   cat >"${HOME}/DeepFakeECG-Launcher" <<EOF
 #!/bin/sh -eu
 
 # Activate the Python environment:
@@ -150,13 +153,13 @@ cat >"${HOME}/DeepFakeECG-Launcher" <<EOF
 cd $(pwd)
 ./deepfakeecg-launcher
 EOF
-chmod +x "${HOME}/DeepFakeECG-Launcher"
+   chmod +x "${HOME}/DeepFakeECG-Launcher"
 
-# ------ Generate a desktop icon --------------------------------------------
-# NOTE: The desktop icon must contain the full path to the program.
-#       => $(pwd) provides the current directory.
+   # ------ Generate a desktop icon --------------------------------------------
+   # NOTE: The desktop icon must contain the full path to the program.
+   #       => $(pwd) provides the current directory.
 
-cat >"${HOME}/Desktop/DeepFakeECG.desktop" <<EOF
+   cat >"${HOME}/Desktop/DeepFakeECG.desktop" <<EOF
 [Desktop Entry]
 Comment=Launches DeekFakeECG Generator Plus
 Exec=${HOME}/DeepFakeECG-Launcher
@@ -169,5 +172,13 @@ Type=Application
 EOF
 
 
-# Go back to the original directory:
-popd >/dev/null
+   # Go back to the original directory:
+   popd >/dev/null
+
+else
+
+   # FIXME! # Unfortunately, the dependencies of DeepFakeECG (PyTorch, etc.) are
+   # only working under Linux, yet.
+   echo >&2 "Unsupported operating system."
+
+fi
