@@ -36,7 +36,7 @@
         -   [NEAT](#neat)
         -   [RSerPoolDemo](#rserpooldemo)
         -   [SimulaMet-Desktop](#simulamet-desktop)
-        -   [5gVINNI](#5gvinni)
+        -   [5G-VINNI](#g-vinni)
 -   [Useful Links](#useful-links)
 
 
@@ -410,9 +410,9 @@ Features:
 
 * Some [SimulaMet](https://code.simula.no/)-related source repositories cloned under `$HOME/src`.
 
-### 5gVINNI
+### 5G-VINNI
 
-Basic for general-purpose desktop usage, particularly for working with [5gVINNI](https://www.eurescom.eu/archive/5G-VINNI/). They are based on the NorNet images.
+Basic for general-purpose desktop usage, particularly for working with [5G-VINNI](https://www.eurescom.eu/archive/5G-VINNI/). They are based on the NorNet images.
 
 
 # 🔗 Useful Links
