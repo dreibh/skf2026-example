@@ -44,6 +44,25 @@ set -euo pipefail
 HOMEPAGE="https://www.nntb.no/~dreibh"
 
 
+# ###### Ensure that script is executed by the user account #################
+if [ "$(id -u)" -eq 0 ] ; then
+   # Running as root using sudo. Run the script again, but as user!
+   echo "Running as ROOT! SUDO_USER=${SUDO_USER}"
+   if [ "${SUDO_USER}" != "root" ] ; then
+      # shellcheck disable=SC2068
+      sudo -u "${SUDO_USER}" "$0" $@ && exit 0
+      exit 1
+   else
+      # Prevent recursive invocation as "root" user:
+      echo >&2 "ERROR: Run this script either as user or with sudo."
+      exit 1
+   fi
+else
+   # Echo running as user
+   echo "Running as ${USER}! SUDO_USER=${SUDO_USER:-}"
+fi
+
+
 # ###### Print script name, to make Packer output easier readable ###########
 if command -v figlet >/dev/null && command -v print-utf8 >/dev/null ; then
    echo
@@ -66,25 +85,6 @@ if [ ! -e /etc/os-release ] ; then
    exit 1
 fi
 . /etc/os-release
-
-
-# ====== Ensure that script is executed by the user account =================
-if [ "$(id -u)" -eq 0 ] ; then
-   # Running by configuring sudo root. Run script again, but as user!
-   echo "Running as ROOT! SUDO_USER=${SUDO_USER}"
-   if [ "${SUDO_USER}" != "root" ] ; then
-      # shellcheck disable=SC2068
-      sudo -u "${SUDO_USER}" "$0" $@ && exit 0
-      exit 1
-   else
-      # Prevent recursive invocation as "root" user:
-      echo >&2 "ERROR: Run this script either as user or with sudo."
-      exit 1
-   fi
-else
-   # Echo running as user
-   echo "Running as ${USER}! SUDO_USER=${SUDO_USER:-}"
-fi
 
 if [ "${ID}" == "ubuntu" ] ; then
    if [[ "${VERSION_ID}" =~ ^1[234567]\.[01][04]$ ]] ; then
