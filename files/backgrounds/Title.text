@@ -42,7 +42,7 @@ if [ -z "${fontName}" ] ; then
 fi
 
 ${GS_GLOSSYTEXT} "${OUTPUT}"              \
-   "SimulaMet"                            \
+   "Simula"                               \
    --font-name              "${fontName}" \
    --font-size              1024          \
    --outline-size           30            \

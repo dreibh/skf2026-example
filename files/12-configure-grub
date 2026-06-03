@@ -11,5 +11,7 @@ backgrounds/Output/Splash/Gressholmen-3840x2160.jpeg   /tmp/bootsplash-images/Gr
 backgrounds/Output/Splash/Lindøya-3840x2160.jpeg       /tmp/bootsplash-images/Lindøya-3840x2160.jpeg
 backgrounds/Output/Splash/Nordmarka-3840x2160.jpeg     /tmp/bootsplash-images/Nordmarka-3840x2160.jpeg
 
+backgrounds/Output/Splash/Bergen-3840x2160.jpeg        /tmp/bootsplash-images/Bergen-3840x2160.jpeg
+
 # GRUB bootsplash configuration script:
 12-configure-grub.files/06_aaaaa_bootsplash.in         /tmp/configuration-files/
