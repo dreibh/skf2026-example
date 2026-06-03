@@ -48,24 +48,6 @@ set -x
 
 # ###### Main program #######################################################
 
-# ====== Ensure that script is executed by the user account =================
-if [ "$(id -u)" -eq 0 ] ; then
-   # Running by configuring sudo root. Run script again, but as user!
-   echo "Running as ROOT! SUDO_USER=${SUDO_USER}"
-   if [ "${SUDO_USER}" != "root" ] ; then
-      # shellcheck disable=SC2068
-      sudo -u "${SUDO_USER}" "$0" $@ && exit 0
-      exit 1
-   else
-      # Prevent recursive invocation as "root" user:
-      echo >&2 "ERROR: Run this script either as user or with sudo."
-      exit 1
-   fi
-else
-   # Echo running as user
-   echo "Running as ${USER}! SUDO_USER=${SUDO_USER:-}"
-fi
-
 # ====== Check/set environment variables ====================================
 if [ ! -v USER_NAME ] || [ "${USER_NAME}" == "" ] ; then
    echo >&2 "Usage: env USER_NAME=<user> $0"
@@ -111,7 +93,7 @@ APPLICATIONS="
 
 
 # ====== Create Desktop directory ===========================================
-mkdir -p "${DESKTOP_DIRECTORY}"
+sudo -u "${USER_NAME}" mkdir -p "${DESKTOP_DIRECTORY}"
 
 
 # ====== Create links for directories =======================================
@@ -122,7 +104,7 @@ for directory in ${DIRECTORIES} ; do
    fi
    if [ ! -e "${DESKTOP_DIRECTORY}/${basename}" ] ; then
       echo "Creating desktop link for directory ${directory} as ${basename} ..."
-      ln -s "${directory}" "${DESKTOP_DIRECTORY}/${basename}"
+      sudo -u "${USER_NAME}" ln -s "${directory}" "${DESKTOP_DIRECTORY}/${basename}"
    fi
 done
 
@@ -136,7 +118,7 @@ for application in ${APPLICATIONS} ; do
          echo "FOUND: ${application} -> ${source}/${application}.desktop"
          if [ ! -e "${DESKTOP_DIRECTORY}/${application}.desktop" ] ; then
             echo "Creating desktop link for application ${application} (in ${source}) ..."
-            ln -s "${source}/${application}.desktop" "${DESKTOP_DIRECTORY}/" || true
+            sudo -u "${USER_NAME}" ln -s "${source}/${application}.desktop" "${DESKTOP_DIRECTORY}/" || true
             break
          fi
       fi
